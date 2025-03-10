@@ -1,32 +1,21 @@
-package com.cinergia.psicointegral
+package com.cinergia.psicointegral.Registro
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.cinergia.psicointegral.bienvenida.MainActivitybienvenida
+import com.cinergia.psicointegral.R
 
-class MainActivity : AppCompatActivity() {
+class Registro : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_registro)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        
-        val btnEntrar = findViewById<Button>(R.id.btnEntrar)
-        
-        btnEntrar.setOnClickListener { gotoBienvenida() }
-    }
-
-    private fun gotoBienvenida() {
-        val intent = Intent(this, MainActivitybienvenida::class.java)
-        startActivity(intent)
     }
 }

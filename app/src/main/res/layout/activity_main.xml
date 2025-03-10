@@ -5,15 +5,110 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="@color/background"
+    android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <ImageView
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:src="@drawable/logo"
+        app:layout_constraintBottom_toTopOf="@+id/cardView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    </ImageView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:background="@color/morado_oscuro"
+        app:cardCornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/morado_oscuro"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/ItemUsuario"
+                android:layout_width="210dp"
+                android:layout_height="90dp"
+                android:layout_marginTop="20dp"
+                android:src="@drawable/item_accout"
+                android:tint="@color/white">
+            </ImageView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:text="Validar credeciales"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                android:textStyle="bold">
+            </TextView>
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/usuario"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_margin="5dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:hint="Ingresa el usuario"
+                android:textColor="@color/black">
+            </androidx.appcompat.widget.AppCompatEditText>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Error"
+                android:textColor="#FF1B00"
+                android:visibility="visible"
+                android:id="@+id/tvErrorUsuario">
+
+            </TextView>
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/contrasena"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_margin="5dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:hint="Ingresa la contraseña"
+                android:textColor="@color/black"
+                android:inputType="textPassword">
+            </androidx.appcompat.widget.AppCompatEditText>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Error"
+                android:textColor="#FF1B00"
+                android:visibility="visible"
+                android:id="@+id/tvErrorContraseña">
+            </TextView>
+
+            <Button
+                android:id="@+id/btnEntrar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Entrar"
+                android:textSize="15dp">
+            </Button>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
