@@ -1,4 +1,4 @@
-package com.cinergia.psicointegral.bienvenida
+package com.cinergia.psicointegral.Bienvenida
 
 import android.content.Intent
 import android.os.Bundle
