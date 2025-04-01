@@ -2,6 +2,7 @@ package com.cinergia.psicointegral.Bienvenida
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -21,12 +22,20 @@ class MainActivitybienvenida : AppCompatActivity() {
             insets
         }
         val btnEntrarbien = findViewById<Button>(R.id.btnEntrarbien)
+        val nombreEmpresa = intent.getStringExtra("nombre_empresa")
+        Log.d("MainActivityBienvenida", "Nombre de la empresa: $nombreEmpresa")
 
-        btnEntrarbien.setOnClickListener { gotoRegistro() }
+        btnEntrarbien.setOnClickListener {
+            if (nombreEmpresa != null) {
+                gotoRegistro( nombreEmpresa )
+            }
+        }
     }
 
-    private fun gotoRegistro() {
-        val intent = Intent(this, Registro::class.java)
+    private fun gotoRegistro(nombreEmpresa: String) {
+        val intent = Intent(this, Registro::class.java).apply{
+            putExtra("nombre_empresa", nombreEmpresa)
+        }
         startActivity(intent)
     }
 }

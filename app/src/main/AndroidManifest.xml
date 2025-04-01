@@ -16,6 +16,9 @@
             android:name=".Cuestionario.CuestionarioActivity"
             android:exported="false" />
         <activity
+            android:name=".Cuestionario.CuestionarioActivity"
+            android:exported="false" />
+        <activity
             android:name=".Registro.Registro"
             android:exported="false" />
         <activity
