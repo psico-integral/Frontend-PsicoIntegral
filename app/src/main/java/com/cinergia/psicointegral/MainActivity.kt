@@ -1,5 +1,6 @@
 package com.cinergia.psicointegral
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -35,11 +36,9 @@ class MainActivity : AppCompatActivity() {
 
         val btnEntrar = findViewById<Button>(R.id.btnEntrar)
 
-        // Inicializar Firebase con la URL de tu Realtime Database
         database = FirebaseDatabase.getInstance("https://psicointegral-encuestas-default-rtdb.firebaseio.com/")
         empresaRef = database.reference.child("empresa")
 
-        // Configurar el botón de login
         btnEntrar.setOnClickListener {
             val usuario = usuarioEditText.text.toString().trim()
             val contrasena = contrasenaEditText.text.toString().trim()
@@ -52,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Mostrar errores si faltan datos
+    // ✅ Mostrar errores si faltan datos
     private fun mostrarErrores(usuario: String, contrasena: String) {
         if (usuario.isEmpty()) {
             tvErrorUsuario.text = "El usuario es requerido"
@@ -69,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Validar las credenciales en Firebase
+    // ✅ Validar las credenciales en Firebase y guardar el nombre de la empresa
     private fun validarCredenciales(usuario: String, contrasena: String) {
         tvErrorCredenciales.visibility = TextView.GONE
 
@@ -77,22 +76,30 @@ class MainActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 val dataSnapshot = task.result
                 var credencialesValidas = false
+                var nombreEmpresa = ""
 
                 dataSnapshot?.children?.forEach { empresa ->
                     val storedUsuario = empresa.child("usuario").getValue(String::class.java)
                     val storedContrasena = empresa.child("contrasena").getValue(String::class.java)
+                    val storedNombre = empresa.child("nombre").getValue(String::class.java)
 
-                    // Comparación directa (ya no está encriptada)
+                    // ✅ Validación directa
                     if (storedUsuario == usuario && storedContrasena == contrasena) {
                         credencialesValidas = true
+                        nombreEmpresa = storedNombre ?: ""
                     }
                 }
 
                 if (credencialesValidas) {
-                    Toast.makeText(this, "Login exitoso", Toast.LENGTH_SHORT).show()
-                    gotoBienvenida()
+                    Toast.makeText(this, "Login exitoso ✅", Toast.LENGTH_SHORT).show()
+
+                    // ✅ Guardar el nombre de la empresa correctamente
+                    guardarNombreEmpresa(nombreEmpresa)
+
+                    // ✅ Pasar el nombre a la siguiente pantalla
+                    gotoBienvenida(nombreEmpresa)
                 } else {
-                    tvErrorCredenciales.text = "Usuario o contraseña incorrectos"
+                    tvErrorCredenciales.text = "Usuario o contraseña incorrectos⚠️"
                     tvErrorCredenciales.visibility = TextView.VISIBLE
                 }
             } else {
@@ -101,9 +108,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Ir a la pantalla de bienvenida si las credenciales son correctas
-    private fun gotoBienvenida() {
-        val intent = Intent(this, MainActivitybienvenida::class.java)
+    private fun guardarNombreEmpresa(nombreEmpresa: String) {
+        val sharedPreferences = getSharedPreferences("PREFS", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("nombre_empresa", nombreEmpresa)
+        editor.apply()
+    }
+
+    private fun gotoBienvenida(nombreEmpresa: String) {
+        val intent = Intent(this, MainActivitybienvenida::class.java).apply {
+            putExtra("nombre_empresa", nombreEmpresa)
+        }
         startActivity(intent)
     }
 }
