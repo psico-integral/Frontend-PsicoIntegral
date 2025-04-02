@@ -149,17 +149,43 @@ fun obtenerCuestionarios(): Cuestionario {
                     mapOf(
                         "01" to Pregunta("Mi trabajo exige que esté muy concentrado", "frecuencia"),
                         "02" to Pregunta("Mi trabajo requiere que memorice mucha información", "frecuencia"),
-                        "03" to Pregunta("Mi trabajo exige que atienda varios asuntos al mismo tiempo", "frecuencia")
+                        "03" to Pregunta("En mi trabajo tengo que tomar decisiones difíciles muy rápido", "frecuencia"),
+                        "04" to Pregunta("Mi trabajo exige que atienda varios asuntos al mismo tiempo", "frecuencia")
                     )
                 ),
                 Seccion(
                     mapOf(
-                        "01" to Pregunta("Mi trabajo me exige realizar mucho esfuerzo físico", "frecuencia"),
-                        "02" to Pregunta("Mi trabajo me exige estar mucho tiempo de pie", "frecuencia"),
-                        "03" to Pregunta("Mi trabajo me exige estar mucho tiempo sentado", "frecuencia"),
-                        "04" to Pregunta("Mi trabajo me exige hacer movimientos repetitivos", "frecuencia"),
-                        "05" to Pregunta("Mi trabajo me exige hacer movimientos muy rápidos", "frecuencia"),
-                        "06" to Pregunta("Mi trabajo me exige cargar peso", "frecuencia")
+                        "01" to Pregunta("En mi trabajo soy responsable de cosas de mucho valor", "si_no"),
+                        "02" to Pregunta("Respondo ante mi jefe por los resultados de toda mi área de trabajo", "si_no"),
+                        "03" to Pregunta("En el trabajo me dan órdenes contradictorias", "si_no"),
+                        "04" to Pregunta("Puedo decidir la velocidad a la que realizo mis actividades en mi trabajo", "si_no"),
+                        "05" to Pregunta("Considero que en mi trabajo me piden hacer cosas innecesarias", "si_no")
+                    )
+                ),
+                Seccion(
+                    mapOf(
+                        "01" to Pregunta("Trabajo horas extras más de tres veces a la semana", "frecuencia"),
+                        "02" to Pregunta("Mi trabajo me exige laborar en días de descanso, festivos o fines de semana", "frecuencia"),
+                        "03" to Pregunta("Considero que el tiempo en el trabajo es mucho y perjudica mis actividades familiares o personales", "frecuencia"),
+                        "04" to Pregunta("Debo atender asuntos de trabajo cuando estoy en casa", "frecuencia"),
+                        "05" to Pregunta("Pienso en las actividades familiares o personales cuando estoy en mi trabajo", "frecuencia"),
+                        "06" to Pregunta("Pienso que mis responsabilidades familiares afectan mi trabajo", "frecuencia")
+                    )
+                ),
+                Seccion(
+                    mapOf(
+                        "01" to Pregunta("Mi trabajo permite que desarrolle nuevas habilidades", "si_no"),
+                        "02" to Pregunta("En mi trabajo puedo aspirar a un mejor puesto", "si_no"),
+                        "03" to Pregunta("Durante mi jornada de trabajo puedo tomar pausas cuando las necesito", "si_no"),
+                        "04" to Pregunta("Puedo decidir cuánto trabajo realizo durante la jornada laboral", "si_no"),
+                        "05" to Pregunta("Puedo decidir la velocidad a la que realizo mis actividades en mi trabajo", "si_no"),
+                        "06" to Pregunta("Puedo cambiar el orden de las actividades que realizo en mi trabajo", "si_no")
+                    )
+                ),
+                Seccion(
+                    mapOf(
+                        "01" to Pregunta("Los cambios que se presentan en mi trabajo dificultan mi labor", "si_no"),
+                        "02" to Pregunta("Cuando se presentan cambios en mi trabajo se tienen en cuenta mis ideas o aportaciones", "si_no")
                     )
                 )
             )
