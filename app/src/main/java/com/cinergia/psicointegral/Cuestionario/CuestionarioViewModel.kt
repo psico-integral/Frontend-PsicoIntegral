@@ -17,13 +17,23 @@ class CuestionarioViewModel : ViewModel() {
     private val _respuestas = MutableLiveData<MutableMap<String, String>>(mutableMapOf())
     val respuestas: LiveData<MutableMap<String, String>> get() = _respuestas
 
+    private val _mostrarSoloPrimeraPregunta = MutableLiveData(true)
+    val mostrarSoloPrimeraPregunta: LiveData<Boolean> get() = _mostrarSoloPrimeraPregunta
+
+    private val _finalizado = MutableLiveData(false)
+    val finalizado: LiveData<Boolean> get() = _finalizado
+
     fun iniciarCuestionario(clave: String) {
         _claveActual.value = clave
         _indiceSeccion.value = 0
         _respuestas.value = mutableMapOf()
+        _mostrarSoloPrimeraPregunta.value = true
+        _finalizado.value = false
     }
 
     fun avanzarSeccion() {
+        limpiarRespuestasDeSeccionActual()
+
         val clave = _claveActual.value ?: return
         val indiceActual = _indiceSeccion.value ?: 0
         val totalSecciones = cuestionariosMap[clave]?.size ?: 0
@@ -42,79 +52,62 @@ class CuestionarioViewModel : ViewModel() {
             iniciarCuestionario(clavesCuestionarios[siguienteIndice])
         } else {
             _claveActual.value = "fin"
+            _finalizado.value = true
         }
     }
 
     fun guardarRespuesta(id: String, respuesta: String, tipo: String) {
-        _respuestas.value?.put(id, respuesta)
-        _respuestas.postValue(_respuestas.value)
+        val respuestasActuales = _respuestas.value ?: mutableMapOf()
+        respuestasActuales[id] = respuesta
+        _respuestas.value = respuestasActuales
 
         val clave = _claveActual.value ?: return
         val seccionIndex = _indiceSeccion.value ?: return
 
         if (clave == "cuestionario_01") {
-            when (seccionIndex) {
-                0 -> {
-                    val totalPreguntas = cuestionariosMap[clave]?.get(0)?.seccion?.size ?: 0
-                    val respuestasActuales = _respuestas.value?.size ?: 0
-                    if (respuestasActuales == totalPreguntas) {
-                        evaluarSeccionIAcontecimiento()
-                    }
+            if (_mostrarSoloPrimeraPregunta.value == true && seccionIndex == 0 && id == "01") {
+                if (respuesta.equals("no", true)) {
+                    _finalizado.value = true
+                    _claveActual.value = "fin"
+                } else {
+                    _mostrarSoloPrimeraPregunta.value = false
                 }
-                3 -> {
-                    val respuestas = _respuestas.value ?: return
-                    val secciones = cuestionariosMap[clave] ?: return
-                    val totalPreguntas = secciones[3].seccion.size
-                    val acumuladasPrevias = secciones.take(3).sumOf { it.seccion.size }
-                    if ((respuestas.size - acumuladasPrevias) == totalPreguntas) {
-                        evaluarNecesitaAtencion()
-                    }
-                }
+                return
             }
+
+            val secciones = cuestionariosMap[clave] ?: return
+            val totalPreguntas = secciones[seccionIndex].seccion.size
+            val acumuladasPrevias = secciones.take(seccionIndex).sumOf { it.seccion.size }
+            val respondidas = respuestasActuales.size - acumuladasPrevias
+
+            if (respondidas >= totalPreguntas) {
+                avanzarSeccion()
+            }
+        } else {
+            val secciones = cuestionariosMap[clave] ?: return
+            val totalPreguntas = secciones[seccionIndex].seccion.size
+            val acumuladasPrevias = secciones.take(seccionIndex).sumOf { it.seccion.size }
+            val respondidas = respuestasActuales.size - acumuladasPrevias
+
+            if (respondidas >= totalPreguntas) avanzarSeccion()
         }
     }
 
-    private fun evaluarSeccionIAcontecimiento() {
-        val respuestasSeccionI = _respuestas.value ?: return
-        val algunSi = respuestasSeccionI.values.any { it.equals("sí", true) }
+    private fun limpiarRespuestasDeSeccionActual() {
+        val clave = _claveActual.value ?: return
+        val seccionIndex = _indiceSeccion.value ?: return
+        val secciones = cuestionariosMap[clave] ?: return
+        val preguntasSeccionActual = secciones.getOrNull(seccionIndex)?.seccion?.keys ?: return
 
-        if (!algunSi) {
-            _claveActual.value = "fin"
-        } else {
-            avanzarSeccion()
-        }
-    }
-
-    private fun evaluarNecesitaAtencion() {
-        val respuestas = _respuestas.value ?: return
-        val secciones = cuestionariosMap["cuestionario_01"] ?: return
-
-        val respuestasSeccionII = secciones[1].seccion.keys
-            .mapNotNull { respuestas[it] }
-            .count { it.equals("sí", true) }
-
-        val respuestasSeccionIII = secciones[2].seccion.keys
-            .mapNotNull { respuestas[it] }
-            .count { it.equals("sí", true) }
-
-        val respuestasSeccionIV = secciones[3].seccion.keys
-            .mapNotNull { respuestas[it] }
-            .count { it.equals("sí", true) }
-
-        val necesitaAtencion =
-            respuestasSeccionII >= 1 || respuestasSeccionIII >= 3 || respuestasSeccionIV >= 2
-
-        if (necesitaAtencion) {
-            println("🔴 Se requiere atención clínica")
-        } else {
-            println("🟢 No se requiere atención clínica")
-        }
-
-        avanzarCuestionario()
+        preguntasSeccionActual.forEach { _respuestas.value?.remove(it) }
     }
 
     fun reiniciarCuestionario() {
         _indiceSeccion.value = 0
         _respuestas.value = mutableMapOf()
+        _mostrarSoloPrimeraPregunta.value = true
+        _finalizado.value = false
     }
 }
+
+
