@@ -1,18 +1,16 @@
 package com.cinergia.psicointegral.Cuestionario
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
-import android.widget.RadioGroup
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.cinergia.psicointegral.databinding.ItemPreguntaBinding
 
 class CuestionarioAdapter(
-    private val preguntas: List<Pregunta>,
-    private val onRespuestaSeleccionada: (Int, String) -> Unit,
-    private var respuestasGuardadas: Map<Pregunta, String>
+    private val preguntas: List<Pair<String, Pregunta>>, // 👈 Ahora la lista contiene el ID y la Pregunta
+    private val onRespuestaSeleccionada: (String, String) -> Unit,
+    private var respuestasGuardadas: Map<String, String>
 ) : RecyclerView.Adapter<CuestionarioAdapter.PreguntaViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PreguntaViewHolder {
@@ -21,19 +19,19 @@ class CuestionarioAdapter(
     }
 
     override fun onBindViewHolder(holder: PreguntaViewHolder, position: Int) {
-        val pregunta = preguntas[position]
-        holder.bind(pregunta, respuestasGuardadas[pregunta])
+        val (idPregunta, pregunta) = preguntas[position] // Desestructura el par
+        holder.bind(idPregunta, pregunta, respuestasGuardadas[idPregunta])
     }
 
     override fun getItemCount(): Int = preguntas.size
 
-    fun actualizarRespuestas(nuevasRespuestas: Map<Pregunta, String>) {
+    fun actualizarRespuestas(nuevasRespuestas: Map<String, String>) {
         respuestasGuardadas = nuevasRespuestas
-        notifyDataSetChanged() // 🔹 Actualiza solo los datos sin recrear el Adapter
+        notifyDataSetChanged()
     }
 
     inner class PreguntaViewHolder(private val binding: ItemPreguntaBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(pregunta: Pregunta, respuestaSeleccionada: String?) {
+        fun bind(idPregunta: String, pregunta: Pregunta, respuestaSeleccionada: String?) {
             binding.textPregunta.text = pregunta.pregunta
             binding.radioGroup.removeAllViews()
 
@@ -43,13 +41,13 @@ class CuestionarioAdapter(
                 else -> emptyList()
             }
 
-            opciones.forEachIndexed { index, opcion ->
+            opciones.forEachIndexed { _, opcion ->
                 val radioButton = RadioButton(binding.root.context).apply {
                     text = opcion
                     id = ViewCompat.generateViewId()
                     isChecked = respuestaSeleccionada == opcion
                     setOnClickListener {
-                        onRespuestaSeleccionada(adapterPosition, opcion)
+                        onRespuestaSeleccionada(idPregunta, opcion) // 👈 Ahora pasamos el ID
                     }
                 }
                 binding.radioGroup.addView(radioButton)

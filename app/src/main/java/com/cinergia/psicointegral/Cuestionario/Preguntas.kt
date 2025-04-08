@@ -22,28 +22,28 @@ fun obtenerCuestionarios(): Cuestionario {
                 ),
                 Seccion(
                     mapOf(
-                        "01" to Pregunta("¿Ha tenido recuerdos recurrentes sobre el acontecimiento que le provocan malestares?", "frecuencia"),
-                        "02" to Pregunta("¿Ha tenido sueños de carácter recurrente sobre el acontecimiento, que le producen malestar?", "frecuencia")
+                        "01" to Pregunta("¿Ha tenido recuerdos recurrentes sobre el acontecimiento que le provocan malestares?", "si_no"),
+                        "02" to Pregunta("¿Ha tenido sueños de carácter recurrente sobre el acontecimiento, que le producen malestar?", "si_no")
                     )
                 ),
                 Seccion(
                     mapOf(
-                        "01" to Pregunta("¿Se ha esforzado por evitar todo tipo de sentimientos, conversaciones o situaciones que le puedan recordar el acontecimiento?", "frecuencia"),
-                        "02" to Pregunta("¿Ha tenido sueños de carácter recurrente sobre el acontecimiento, que le producen malestar?", "frecuencia"),
-                        "03" to Pregunta("¿Ha tenido dificultad para recordar alguna parte importante del evento?", "frecuencia"),
-                        "04" to Pregunta("¿Ha disminuido su interés en sus actividades cotidianas?", "frecuencia"),
-                        "05" to Pregunta("¿Se ha sentido usted alejado o distante de los demás?", "frecuencia"),
-                        "06" to Pregunta("¿Ha notado que tiene dificultad para expresar sus sentimientos?", "frecuencia"),
-                        "07" to Pregunta("¿Ha tenido la impresión de que su vida se va a acortar, que va a morir antes que otras personas o que tiene un futuro limitado?", "frecuencia")
+                        "01" to Pregunta("¿Se ha esforzado por evitar todo tipo de sentimientos, conversaciones o situaciones que le puedan recordar el acontecimiento?", "si_no"),
+                        "02" to Pregunta("¿Ha tenido sueños de carácter recurrente sobre el acontecimiento, que le producen malestar?", "si_no"),
+                        "03" to Pregunta("¿Ha tenido dificultad para recordar alguna parte importante del evento?", "si_no"),
+                        "04" to Pregunta("¿Ha disminuido su interés en sus actividades cotidianas?", "si_no"),
+                        "05" to Pregunta("¿Se ha sentido usted alejado o distante de los demás?", "si_no"),
+                        "06" to Pregunta("¿Ha notado que tiene dificultad para expresar sus sentimientos?", "si_no"),
+                        "07" to Pregunta("¿Ha tenido la impresión de que su vida se va a acortar, que va a morir antes que otras personas o que tiene un futuro limitado?", "si_no")
                     )
                 ),
                 Seccion(
                     mapOf(
-                        "01" to Pregunta("¿Ha tenido usted dificultades para dormir?", "frecuencia"),
-                        "02" to Pregunta("¿Ha estado particularmente irritable o le han dado arranques de coraje?", "frecuencia"),
-                        "03" to Pregunta("¿Ha tenido dificultad para concentrarse?", "frecuencia"),
-                        "04" to Pregunta("¿Ha estado nervioso o constantemente en alerta?", "frecuencia"),
-                        "05" to Pregunta("¿Se ha sobresaltado fácilmente por cualquier cosa?", "frecuencia")
+                        "01" to Pregunta("¿Ha tenido usted dificultades para dormir?", "si_no"),
+                        "02" to Pregunta("¿Ha estado particularmente irritable o le han dado arranques de coraje?", "si_no"),
+                        "03" to Pregunta("¿Ha tenido dificultad para concentrarse?", "si_no"),
+                        "04" to Pregunta("¿Ha estado nervioso o constantemente en alerta?", "si_no"),
+                        "05" to Pregunta("¿Se ha sobresaltado fácilmente por cualquier cosa?", "si_no")
                     )
                 )
             ),
@@ -125,6 +125,14 @@ fun obtenerCuestionarios(): Cuestionario {
                 Seccion(
                     mapOf(
                         "01" to Pregunta("Soy jefe de otros trabajadores", "si_no")
+                    )
+                ),
+                Seccion(
+                    mapOf(
+                        "01" to Pregunta("Comunican tarde los asuntos de trabajo","frecuencia"),
+                        "02" to Pregunta("Dificultan el logro de los resultados del trabajo","frecuencia"),
+                        "03" to Pregunta("Ignoran las sugerencias para mejorar su trabajo", "frecuencia")
+
                     )
                 )
             ),
