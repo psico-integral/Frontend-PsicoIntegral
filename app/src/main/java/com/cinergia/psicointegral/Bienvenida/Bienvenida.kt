@@ -11,7 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.cinergia.psicointegral.R
 import com.cinergia.psicointegral.Registro.Registro
 
-class MainActivitybienvenida : AppCompatActivity() {
+class Bienvenida : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

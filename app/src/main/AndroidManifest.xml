@@ -16,13 +16,10 @@
             android:name=".Cuestionario.CuestionarioActivity"
             android:exported="false" />
         <activity
-            android:name=".Cuestionario.CuestionarioActivity"
-            android:exported="false" />
-        <activity
             android:name=".Registro.Registro"
             android:exported="false" />
         <activity
-            android:name=".Bienvenida.MainActivitybienvenida"
+            android:name=".Bienvenida.Bienvenida"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
