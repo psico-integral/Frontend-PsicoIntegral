@@ -3,6 +3,7 @@ package com.cinergia.psicointegral.Cuestionario
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.database.FirebaseDatabase
 
 class CuestionarioViewModel : ViewModel() {
     private val cuestionariosMap = obtenerCuestionarios().cuestionario
@@ -23,23 +24,31 @@ class CuestionarioViewModel : ViewModel() {
     private val _finalizado = MutableLiveData(false)
     val finalizado: LiveData<Boolean> get() = _finalizado
 
+    private var nombreEmpresa: String = ""
+    private var nombreEmpleado: String = ""
+
+    fun setNombreEmpresaEmpleado(empresa: String, empleado: String) {
+        nombreEmpresa = empresa
+        nombreEmpleado = empleado
+    }
+
     fun iniciarCuestionario(clave: String) {
         _claveActual.value = clave
         _indiceSeccion.value = 0
         _respuestas.value = mutableMapOf()
-        _mostrarSoloPrimeraPregunta.value = true
+        _mostrarSoloPrimeraPregunta.value = clave == "cuestionario_01"
         _finalizado.value = false
     }
 
     fun avanzarSeccion() {
-        limpiarRespuestasDeSeccionActual()
-
         val clave = _claveActual.value ?: return
         val indiceActual = _indiceSeccion.value ?: 0
         val totalSecciones = cuestionariosMap[clave]?.size ?: 0
+
         if (indiceActual + 1 < totalSecciones) {
             _indiceSeccion.value = indiceActual + 1
         } else {
+            guardarRespuestasEnFirebase()
             avanzarCuestionario()
         }
     }
@@ -57,57 +66,87 @@ class CuestionarioViewModel : ViewModel() {
     }
 
     fun guardarRespuesta(id: String, respuesta: String, tipo: String) {
+        val clave = _claveActual.value ?: return
+        val seccionIndex = _indiceSeccion.value ?: return
+
+        if (clave == "cuestionario_01" &&
+            _mostrarSoloPrimeraPregunta.value == true &&
+            seccionIndex == 0 && id == "01"
+        ) {
+            if (respuesta.equals("no", true)) {
+                _finalizado.value = true
+                _claveActual.value = "fin"
+                return
+            } else {
+                _mostrarSoloPrimeraPregunta.value = false
+                _respuestas.value = mutableMapOf() // limpia solo esa respuesta
+                return
+            }
+        }
+
         val respuestasActuales = _respuestas.value ?: mutableMapOf()
         respuestasActuales[id] = respuesta
         _respuestas.value = respuestasActuales
 
-        val clave = _claveActual.value ?: return
-        val seccionIndex = _indiceSeccion.value ?: return
+        val secciones = cuestionariosMap[clave] ?: return
+        val idsPreguntasSeccion = secciones[seccionIndex].seccion.keys
+        val respondidas = idsPreguntasSeccion.count { respuestasActuales.containsKey(it) }
 
-        if (clave == "cuestionario_01") {
-            if (_mostrarSoloPrimeraPregunta.value == true && seccionIndex == 0 && id == "01") {
-                if (respuesta.equals("no", true)) {
-                    _finalizado.value = true
-                    _claveActual.value = "fin"
-                } else {
-                    _mostrarSoloPrimeraPregunta.value = false
-                }
-                return
-            }
-
-            val secciones = cuestionariosMap[clave] ?: return
-            val totalPreguntas = secciones[seccionIndex].seccion.size
-            val acumuladasPrevias = secciones.take(seccionIndex).sumOf { it.seccion.size }
-            val respondidas = respuestasActuales.size - acumuladasPrevias
-
-            if (respondidas >= totalPreguntas) {
-                avanzarSeccion()
-            }
-        } else {
-            val secciones = cuestionariosMap[clave] ?: return
-            val totalPreguntas = secciones[seccionIndex].seccion.size
-            val acumuladasPrevias = secciones.take(seccionIndex).sumOf { it.seccion.size }
-            val respondidas = respuestasActuales.size - acumuladasPrevias
-
-            if (respondidas >= totalPreguntas) avanzarSeccion()
+        if (respondidas >= idsPreguntasSeccion.size) {
+            avanzarSeccion()
         }
     }
 
-    private fun limpiarRespuestasDeSeccionActual() {
+    private fun guardarRespuestasEnFirebase() {
         val clave = _claveActual.value ?: return
-        val seccionIndex = _indiceSeccion.value ?: return
+        val respuestasMap = _respuestas.value ?: return
         val secciones = cuestionariosMap[clave] ?: return
-        val preguntasSeccionActual = secciones.getOrNull(seccionIndex)?.seccion?.keys ?: return
 
-        preguntasSeccionActual.forEach { _respuestas.value?.remove(it) }
+        val estructura = mutableMapOf<String, MutableMap<String, Int>>()
+
+        var seccionIndex = 1
+        for (seccion in secciones) {
+            val idSeccion = "seccion_$seccionIndex"
+            val respuestasSeccion = mutableMapOf<String, Int>()
+
+            for ((idPregunta, pregunta) in seccion.seccion) {
+                val respuestaTexto = respuestasMap[idPregunta] ?: "No contestó"
+                val valorNumerico = convertirRespuestaANumero(respuestaTexto)
+                respuestasSeccion[idPregunta] = valorNumerico
+            }
+
+            estructura[idSeccion] = respuestasSeccion
+            seccionIndex++
+        }
+
+        val database = FirebaseDatabase.getInstance("https://psicointegral-usuariorespuesta-default-rtdb.firebaseio.com/")
+        val ref = database.reference
+            .child(nombreEmpresa)
+            .child(nombreEmpleado)
+            .child("cuestionarios")
+            .child(clave)
+
+        ref.setValue(estructura)
+    }
+
+    private fun convertirRespuestaANumero(respuesta: String): Int {
+        return when (respuesta.lowercase()) {
+            "sí" -> 1
+            "no" -> 2
+            "nunca" -> 3
+            "rara vez" -> 4
+            "algunas veces" -> 5
+            "frecuentemente" -> 6
+            "siempre" -> 7
+            "no contestó" -> 0
+            else -> 0
+        }
     }
 
     fun reiniciarCuestionario() {
         _indiceSeccion.value = 0
         _respuestas.value = mutableMapOf()
-        _mostrarSoloPrimeraPregunta.value = true
+        _mostrarSoloPrimeraPregunta.value = _claveActual.value == "cuestionario_01"
         _finalizado.value = false
     }
 }
-
-
