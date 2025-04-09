@@ -3,55 +3,56 @@ package com.cinergia.psicointegral.Cuestionario
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.RadioButton
-import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.cinergia.psicointegral.databinding.ItemPreguntaBinding
 
 class CuestionarioAdapter(
-    private val preguntas: List<Pair<String, Pregunta>>, // 👈 Ahora la lista contiene el ID y la Pregunta
+    private val preguntas: List<Pair<String, Pregunta>>,
     private val onRespuestaSeleccionada: (String, String) -> Unit,
-    private var respuestasGuardadas: Map<String, String>
+    private val respuestasGuardadas: Map<String, String>,
+    private val mostrarSoloPrimera: Boolean
 ) : RecyclerView.Adapter<CuestionarioAdapter.PreguntaViewHolder>() {
+
+    private val opciones = listOf("Sí", "No", "Nunca", "Rara vez", "Algunas veces", "Frecuentemente", "Siempre")
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PreguntaViewHolder {
         val binding = ItemPreguntaBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return PreguntaViewHolder(binding)
     }
 
+    override fun getItemCount(): Int {
+        return if (mostrarSoloPrimera && preguntas.isNotEmpty()) 1 else preguntas.size
+    }
+
     override fun onBindViewHolder(holder: PreguntaViewHolder, position: Int) {
-        val (idPregunta, pregunta) = preguntas[position] // Desestructura el par
-        holder.bind(idPregunta, pregunta, respuestasGuardadas[idPregunta])
+        val (id, pregunta) = preguntas[position]
+        holder.bind(id, pregunta)
     }
 
-    override fun getItemCount(): Int = preguntas.size
+    inner class PreguntaViewHolder(private val binding: ItemPreguntaBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-    fun actualizarRespuestas(nuevasRespuestas: Map<String, String>) {
-        respuestasGuardadas = nuevasRespuestas
-        notifyDataSetChanged()
-    }
+        fun bind(id: String, pregunta: Pregunta) {
+            binding.txtPregunta.text = pregunta.pregunta
+            val radioGroup = binding.radioGroupRespuestas
+            radioGroup.removeAllViews()
 
-    inner class PreguntaViewHolder(private val binding: ItemPreguntaBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(idPregunta: String, pregunta: Pregunta, respuestaSeleccionada: String?) {
-            binding.textPregunta.text = pregunta.pregunta
-            binding.radioGroup.removeAllViews()
+            for (opcion in opciones) {
+                val radioButton = RadioButton(binding.root.context)
+                radioButton.text = opcion
+                radioGroup.addView(radioButton)
 
-            val opciones = when (pregunta.tipo) {
-                "si_no" -> listOf("Sí", "No")
-                "frecuencia" -> listOf("Nunca", "Rara vez", "Algunas veces", "Frecuentemente", "Siempre")
-                else -> emptyList()
+                if (respuestasGuardadas[id] == opcion) {
+                    radioButton.isChecked = true
+                }
             }
 
-            opciones.forEachIndexed { _, opcion ->
-                val radioButton = RadioButton(binding.root.context).apply {
-                    text = opcion
-                    id = ViewCompat.generateViewId()
-                    isChecked = respuestaSeleccionada == opcion
-                    setOnClickListener {
-                        onRespuestaSeleccionada(idPregunta, opcion) // 👈 Ahora pasamos el ID
-                    }
-                }
-                binding.radioGroup.addView(radioButton)
+            radioGroup.setOnCheckedChangeListener { group, checkedId ->
+                val selected = group.findViewById<RadioButton>(checkedId)
+                val respuesta = selected?.text?.toString() ?: ""
+                onRespuestaSeleccionada(id, respuesta)
             }
         }
     }
 }
+
