@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.database.FirebaseDatabase
 
 class CuestionarioViewModel : ViewModel() {
+
+    private var intentoAvanzarConPreguntasFaltantes = false
     private val cuestionariosMap = obtenerCuestionarios().cuestionario
     private val clavesCuestionarios = cuestionariosMap.keys.toList()
 
@@ -24,6 +26,9 @@ class CuestionarioViewModel : ViewModel() {
     private val _finalizado = MutableLiveData(false)
     val finalizado: LiveData<Boolean> get() = _finalizado
 
+    private val _mensajeAdvertencia = MutableLiveData<String?>()
+    val mensajeAdvertencia: LiveData<String?> get() = _mensajeAdvertencia
+
     private var nombreEmpresa: String = ""
     private var nombreEmpleado: String = ""
 
@@ -38,48 +43,24 @@ class CuestionarioViewModel : ViewModel() {
         _respuestas.value = mutableMapOf()
         _mostrarSoloPrimeraPregunta.value = clave == "cuestionario_01"
         _finalizado.value = false
+        _mensajeAdvertencia.value = null
     }
 
-    fun avanzarSeccion() {
-        val clave = _claveActual.value ?: return
-        val indiceActual = _indiceSeccion.value ?: 0
-        val totalSecciones = cuestionariosMap[clave]?.size ?: 0
-
-        if (indiceActual + 1 < totalSecciones) {
-            _indiceSeccion.value = indiceActual + 1
-        } else {
-            guardarRespuestasEnFirebase()
-            avanzarCuestionario()
-        }
-    }
-
-    fun avanzarCuestionario() {
-        val indiceActual = clavesCuestionarios.indexOf(_claveActual.value)
-        val siguienteIndice = indiceActual + 1
-
-        if (siguienteIndice < clavesCuestionarios.size) {
-            iniciarCuestionario(clavesCuestionarios[siguienteIndice])
-        } else {
-            _claveActual.value = "fin"
-            _finalizado.value = true
-        }
-    }
-
-    fun guardarRespuesta(id: String, respuesta: String, tipo: String) {
+    fun guardarRespuesta(id: String, respuesta: String, tipo: String, evaluarAvance: Boolean = true) {
         val clave = _claveActual.value ?: return
         val seccionIndex = _indiceSeccion.value ?: return
 
-        if (clave == "cuestionario_01" &&
-            _mostrarSoloPrimeraPregunta.value == true &&
-            seccionIndex == 0 && id == "01"
-        ) {
-            if (respuesta.equals("no", true)) {
-                _finalizado.value = true
+        if (clave == "cuestionario_01" && _mostrarSoloPrimeraPregunta.value == true &&
+            seccionIndex == 0 && id == "01") {
+            if (respuesta.lowercase() == "no") {
+                _respuestas.value = mutableMapOf("01" to "no")
+                guardarSinContestar()
                 _claveActual.value = "fin"
+                _finalizado.value = true
                 return
             } else {
                 _mostrarSoloPrimeraPregunta.value = false
-                _respuestas.value = mutableMapOf() // limpia solo esa respuesta
+                _respuestas.value = mutableMapOf()
                 return
             }
         }
@@ -89,32 +70,156 @@ class CuestionarioViewModel : ViewModel() {
         _respuestas.value = respuestasActuales
 
         val secciones = cuestionariosMap[clave] ?: return
-        val idsPreguntasSeccion = secciones[seccionIndex].seccion.keys
+        val idsPreguntasSeccion = secciones[seccionIndex].seccion.keys.toList()
         val respondidas = idsPreguntasSeccion.count { respuestasActuales.containsKey(it) }
+        val total = idsPreguntasSeccion.size
+        val esUltima = id == idsPreguntasSeccion.last()
 
-        if (respondidas >= idsPreguntasSeccion.size) {
-            avanzarSeccion()
+        if (evaluarAvance && esUltima && respondidas < total) {
+            _mensajeAdvertencia.value = "Falta responder una o más preguntas de esta sección."
+            intentoAvanzarConPreguntasFaltantes = true
+            return
+        }
+
+        if (intentoAvanzarConPreguntasFaltantes && respondidas == total) {
+            _mensajeAdvertencia.value = null
+            intentoAvanzarConPreguntasFaltantes = false
+            when (clave) {
+                "cuestionario_02" -> manejarFlujoCuestionario02(seccionIndex)
+                "cuestionario_03" -> manejarFlujoCuestionario03(seccionIndex)
+                else -> avanzarSeccion()
+            }
+            return
+        }
+
+        if (evaluarAvance && esUltima && respondidas == total) {
+            _mensajeAdvertencia.value = null
+            intentoAvanzarConPreguntasFaltantes = false
+            when (clave) {
+                "cuestionario_02" -> manejarFlujoCuestionario02(seccionIndex)
+                "cuestionario_03" -> manejarFlujoCuestionario03(seccionIndex)
+                else -> avanzarSeccion()
+            }
         }
     }
 
-    private fun guardarRespuestasEnFirebase() {
+    private fun manejarFlujoCuestionario02(seccionIndex: Int) {
+        val respuestasActuales = _respuestas.value ?: return
+        when (seccionIndex) {
+            1 -> {
+                if (respuestasActuales["01"]?.lowercase() == "no") {
+                    limpiarRespuestasDeSeccion(2)
+                    limpiarRespuestasDeSeccion(3)
+                    _indiceSeccion.value = 3
+                } else {
+                    limpiarRespuestasDeSeccion(2)
+                    _indiceSeccion.value = 2
+                }
+            }
+            3 -> {
+                if (respuestasActuales["01"]?.lowercase() == "no") {
+                    avanzarCuestionario()
+                    return
+                } else {
+                    limpiarRespuestasDeSeccion(4)
+                    _indiceSeccion.value = 4
+                }
+            }
+            4 -> avanzarCuestionario()
+            else -> avanzarSeccion()
+        }
+    }
+
+    private fun manejarFlujoCuestionario03(seccionIndex: Int) {
+        val respuestasActuales = _respuestas.value ?: return
+        when (seccionIndex) {
+            1 -> {
+                if (respuestasActuales["01"]?.lowercase() == "no") {
+                    limpiarRespuestasDeSeccion(2)
+                    limpiarRespuestasDeSeccion(3)
+                    _indiceSeccion.value = 3
+                } else {
+                    limpiarRespuestasDeSeccion(2)
+                    _indiceSeccion.value = 2
+                }
+            }
+            3 -> {
+                if (respuestasActuales["01"]?.lowercase() == "no") {
+                    _claveActual.value = "fin"
+                    _finalizado.value = true
+                    return
+                } else {
+                    limpiarRespuestasDeSeccion(4)
+                    _indiceSeccion.value = 4
+                }
+            }
+            4 -> {
+                _claveActual.value = "fin"
+                _finalizado.value = true
+                return
+            }
+            else -> avanzarSeccion()
+        }
+    }
+
+    fun avanzarSeccion() {
+        val clave = _claveActual.value ?: return
+        val indice = (_indiceSeccion.value ?: 0) + 1
+        val secciones = cuestionariosMap[clave] ?: return
+
+        if (indice < secciones.size) {
+            limpiarRespuestasDeSeccion(indice)
+            _indiceSeccion.value = indice
+        } else {
+            avanzarCuestionario()
+        }
+    }
+
+    fun avanzarCuestionario() {
+        guardarRespuestasEnFirebase()
+        val actual = clavesCuestionarios.indexOf(_claveActual.value)
+        val siguiente = actual + 1
+
+        if (siguiente < clavesCuestionarios.size) {
+            iniciarCuestionario(clavesCuestionarios[siguiente])
+        } else {
+            _claveActual.value = "fin"
+            _finalizado.value = true
+        }
+    }
+
+    private fun limpiarRespuestasDeSeccion(seccionIndex: Int) {
+        val respuestasActuales = _respuestas.value ?: mutableMapOf()
+        val seccion = cuestionariosMap[_claveActual.value!!]?.getOrNull(seccionIndex)
+        seccion?.seccion?.keys?.forEach { idPregunta -> respuestasActuales.remove(idPregunta) }
+        _respuestas.value = respuestasActuales
+    }
+
+    private fun guardarSinContestar() {
+        val database = FirebaseDatabase.getInstance("https://psicointegral-usuariorespuesta-default-rtdb.firebaseio.com/")
+        val ref = database.reference
+            .child(nombreEmpresa)
+            .child(nombreEmpleado)
+            .child("respuestas")
+            .child("123")
+
+        ref.setValue("No contestó")
+    }
+
+    fun guardarRespuestasEnFirebase() {
         val clave = _claveActual.value ?: return
         val respuestasMap = _respuestas.value ?: return
         val secciones = cuestionariosMap[clave] ?: return
 
         val estructura = mutableMapOf<String, MutableMap<String, Int>>()
-
         var seccionIndex = 1
         for (seccion in secciones) {
             val idSeccion = "seccion_$seccionIndex"
             val respuestasSeccion = mutableMapOf<String, Int>()
-
-            for ((idPregunta, pregunta) in seccion.seccion) {
+            for ((idPregunta, _) in seccion.seccion) {
                 val respuestaTexto = respuestasMap[idPregunta] ?: "No contestó"
-                val valorNumerico = convertirRespuestaANumero(respuestaTexto)
-                respuestasSeccion[idPregunta] = valorNumerico
+                respuestasSeccion[idPregunta] = convertirRespuestaANumero(respuestaTexto)
             }
-
             estructura[idSeccion] = respuestasSeccion
             seccionIndex++
         }
@@ -123,7 +228,7 @@ class CuestionarioViewModel : ViewModel() {
         val ref = database.reference
             .child(nombreEmpresa)
             .child(nombreEmpleado)
-            .child("cuestionarios")
+            .child("respuestas")
             .child(clave)
 
         ref.setValue(estructura)
@@ -131,14 +236,13 @@ class CuestionarioViewModel : ViewModel() {
 
     private fun convertirRespuestaANumero(respuesta: String): Int {
         return when (respuesta.lowercase()) {
-            "sí" -> 1
+            "sí", "si" -> 1
             "no" -> 2
             "nunca" -> 3
             "rara vez" -> 4
             "algunas veces" -> 5
             "frecuentemente" -> 6
             "siempre" -> 7
-            "no contestó" -> 0
             else -> 0
         }
     }
@@ -148,5 +252,6 @@ class CuestionarioViewModel : ViewModel() {
         _respuestas.value = mutableMapOf()
         _mostrarSoloPrimeraPregunta.value = _claveActual.value == "cuestionario_01"
         _finalizado.value = false
+        _mensajeAdvertencia.value = null
     }
 }

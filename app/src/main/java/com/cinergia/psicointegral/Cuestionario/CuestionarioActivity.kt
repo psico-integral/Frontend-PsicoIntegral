@@ -1,13 +1,15 @@
 package com.cinergia.psicointegral.Cuestionario
 
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.cinergia.psicointegral.databinding.ActivityCuestionarioBinding
 import com.google.firebase.FirebaseApp
+import android.content.Intent
+import com.cinergia.psicointegral.MainActivity
 
 class CuestionarioActivity : AppCompatActivity() {
 
@@ -25,54 +27,90 @@ class CuestionarioActivity : AppCompatActivity() {
         val nombreEmpresa = intent.getStringExtra("nombre_empresa") ?: "empresa_desconocida"
         val nombreEmpleado = intent.getStringExtra("nombre_empleado") ?: "empleado_desconocido"
 
-        Log.d("Cuestionario", "Nombre de la empresa: $nombreEmpresa")
-        Log.d("Cuestionario", "Nombre del empleado: $nombreEmpleado")
-
         viewModel.setNombreEmpresaEmpleado(nombreEmpresa, nombreEmpleado)
 
-        // Configurar RecyclerView
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.isVerticalScrollBarEnabled = true
+        binding.recyclerView.scrollBarFadeDuration = 0
 
-        // Observar cambios en clave del cuestionario
+        binding.btnEnviarFinal.setOnClickListener {
+            viewModel.guardarRespuestasEnFirebase()
+            Toast.makeText(this, "Respuestas enviadas correctamente", Toast.LENGTH_SHORT).show()
+            viewModel.reiniciarCuestionario()
+            finish()
+            startActivity(Intent(this, MainActivity::class.java))
+        }
+
         viewModel.claveActual.observe(this) { clave ->
             if (clave == "fin") {
-                Toast.makeText(this, "¡Has completado todos los cuestionarios!", Toast.LENGTH_LONG).show()
+                mostrarPantallaFinal()
                 return@observe
             }
-
-            viewModel.indiceSeccion.observe(this) { indice ->
-                val cuestionarios = obtenerCuestionarios().cuestionario
-                val seccionActual = cuestionarios[clave]?.getOrNull(indice)
-
-                if (seccionActual != null) {
-                    val listaPreguntas = seccionActual.seccion.toList()
-
-                    adapter = CuestionarioAdapter(
-                        listaPreguntas,
-                        onRespuestaSeleccionada = { id, respuesta ->
-                            val tipo = seccionActual.seccion[id]?.tipo ?: "desconocido"
-                            viewModel.guardarRespuesta(id, respuesta, tipo)
-                        },
-                        respuestasSeleccionadas = viewModel.respuestas.value ?: emptyMap(),
-                        mostrarSoloPrimera = viewModel.mostrarSoloPrimeraPregunta.value == true)
-
-                    binding.recyclerView.adapter = adapter
-                } else {
-                    Toast.makeText(this, "Has terminado este cuestionario", Toast.LENGTH_SHORT).show()
-                }
-            }
+            actualizarAdapter()
         }
 
-        // Observar cuando finaliza todo
+        viewModel.indiceSeccion.observe(this) {
+            actualizarAdapter()
+        }
+
+        viewModel.mostrarSoloPrimeraPregunta.observe(this) {
+            actualizarAdapter()
+        }
+
         viewModel.finalizado.observe(this) { terminado ->
             if (terminado) {
-                Toast.makeText(this, "Gracias por contestar el cuestionario", Toast.LENGTH_LONG).show()
+                mostrarPantallaFinal()
             }
         }
 
-        // Solo se inicializa si es la primera vez
+        viewModel.respuestas.observe(this) {
+            adapter.actualizarRespuestas(it ?: emptyMap())
+            binding.btnEnviarFinal.visibility = if ((it ?: emptyMap()).isNotEmpty()) View.VISIBLE else View.GONE
+        }
+        viewModel.mensajeAdvertencia.observe(this) { mensaje ->
+            mensaje?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         if (viewModel.indiceSeccion.value == 0) {
             viewModel.reiniciarCuestionario()
         }
     }
+
+    private fun actualizarAdapter() {
+        binding.layoutFinal.visibility = View.GONE
+        binding.recyclerView.visibility = View.VISIBLE
+
+        val clave = viewModel.claveActual.value ?: return
+        val indice = viewModel.indiceSeccion.value ?: 0
+        val mostrarSoloPrimera = viewModel.mostrarSoloPrimeraPregunta.value ?: false
+
+        val cuestionarios = obtenerCuestionarios().cuestionario
+        val seccionActual = cuestionarios[clave]?.getOrNull(indice)
+
+        if (seccionActual != null) {
+            val listaPreguntas = seccionActual.seccion.toList()
+
+            adapter = CuestionarioAdapter(
+                preguntas = listaPreguntas,
+                onRespuestaSeleccionada = { id, respuesta ->
+                    val tipo = seccionActual.seccion[id]?.tipo ?: "desconocido"
+                    val esUltimaPregunta = id == listaPreguntas.last().first
+                    viewModel.guardarRespuesta(id, respuesta, tipo, evaluarAvance = esUltimaPregunta)
+                },
+                respuestasGuardadas = viewModel.respuestas.value ?: emptyMap(),
+                mostrarSoloPrimera = mostrarSoloPrimera
+            )
+
+            binding.recyclerView.adapter = adapter
+        }
+    }
+
+    private fun mostrarPantallaFinal() {
+        binding.recyclerView.visibility = View.GONE
+        binding.layoutFinal.visibility = View.VISIBLE
+        binding.txtFinalMensaje.text = "¡Felicidades! Has completado exitosamente el cuestionario."
+    }
 }
+
