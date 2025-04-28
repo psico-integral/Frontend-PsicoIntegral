@@ -16,7 +16,7 @@
               />
               <v-text-field
                 v-model="contrasena"
-                lable="Contraseña"
+                label="Contraseña"
                 type="password"
                 outlined
                 required
@@ -45,8 +45,18 @@ export default {
     }
   },
   methods: {
-    login () {
-      this.$router.push('/home')
+    async login () {
+      this.error = ''
+      try {
+        const response = await this.$axios.post('auth/login1', {
+          usuario: this.usuario,
+          contrasena: this.contrasena
+        })
+        localStorage.setItem('token', response.data.token)
+        this.$router.push('/home')
+      } catch (error) {
+        this.error = 'Credenciales Invalidas'
+      }
     }
   }
 }
