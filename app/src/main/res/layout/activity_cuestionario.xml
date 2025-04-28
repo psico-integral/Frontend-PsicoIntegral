@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/morado_oscuro">
+
+    <!-- RecyclerView para mostrar las preguntas -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:scrollbarThumbVertical="@drawable/scrollbar_white"
+        android:scrollbarSize="8dp" />
+
+    <!-- Este layout será visible solo cuando se termine el cuestionario -->
+    <LinearLayout
+        android:id="@+id/layoutFinal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:background="@drawable/borde_redondeado"> <!-- Inicialmente invisible -->
+
+        <TextView
+            android:id="@+id/txtFinalMensaje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¡Felicidades, has completado el cuestionario!"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:textColor="@color/morado_claro" />
+
+        <Button
+            android:id="@+id/btnEnviarFinal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enviar respuestas"
+            android:backgroundTint="@color/morado_oscuro"
+            android:textColor="@android:color/white"
+            android:padding="12dp" />
+    </LinearLayout>
+
+</LinearLayout>
+

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:cardCornerRadius="16dp"
+    app:cardBackgroundColor="@color/white"
+    android:layout_margin="10dp"
+    android:layout_marginVertical="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="8dp"
+        android:layout_margin="3dp"
+        android:orientation="vertical">
+
+        <!-- Pregunta -->
+        <TextView
+            android:id="@+id/textPregunta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿Cuál es tu color favorito?"
+            android:textSize="18sp"
+            android:textColor="@color/morado_oscuro"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            tools:text="Pregunta" />
+
+        <!-- Opciones de respuesta -->
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Opción 1 -->
+            <RadioButton
+                android:id="@+id/radioOption1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rojo"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:buttonTint="@color/white"
+                android:buttonTintMode="@color/white"/>
+
+            <!-- Opción 3 -->
+            <RadioButton
+                android:id="@+id/radioOption2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Azul"
+                android:textSize="16sp"
+                android:buttonTint="@color/white"
+                android:buttonTintMode="@color/white"/>
+
+            <RadioButton
+                android:id="@+id/radioOption3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Verde"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:buttonTint="@color/white"
+                android:buttonTintMode="@color/white"/>
+        </RadioGroup>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
+
