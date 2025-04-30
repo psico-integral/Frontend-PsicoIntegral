@@ -52,14 +52,22 @@ import SidebarLayout from '@/components/SidebarLayout.vue'
 export default {
   components: {
     SidebarLayout
+  },
+  mounted () {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      this.$router.push('/')
+    }
   }
+
 }
+
 </script>
 
 <style scoped>
 /* Personalizar la tarjeta */
 .custom-card {
-  background-color: #5A1B86;
+  background-color: #4040407e;
   border-radius: 16px;  /* Bordes redondeados */
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2); /* Sombra */
   color: white; /* Color de texto blanco */

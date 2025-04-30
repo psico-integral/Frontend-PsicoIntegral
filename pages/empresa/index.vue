@@ -2,7 +2,7 @@
   <SidebarLayout>
     <v-container>
       <v-row class="mb-4">
-        <v-btn color="#5A1B86" @click="openAddDialog">
+        <v-btn color="#9163CB" @click="openAddDialog">
           <v-icon left>
             mdi-plus
           </v-icon>
@@ -29,7 +29,7 @@
       </v-data-table>
 
       <v-dialog v-model="dialog" max-width="500px">
-        <v-card color="#5A1B86">
+        <v-card color="#9163CB">
           <v-card-title>
             {{ isEdit ? 'Editar Empresa' : 'Agregar Empresa' }}
           </v-card-title>
@@ -67,6 +67,7 @@
 
 <script>
 import SidebarLayout from '@/components/SidebarLayout.vue'
+
 export default {
   components: {
     SidebarLayout
@@ -92,7 +93,15 @@ export default {
     }
   },
   created () {
-    this.fetchEmpresas()
+    if (process.client) {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        this.$router.push('/')
+        return
+      }
+
+      this.fetchEmpresas()
+    }
   },
   methods: {
     openAddDialog () {
@@ -107,66 +116,107 @@ export default {
       this.empresaForm = { ...item }
       this.dialog = true
     },
-
     async addEmpresa () {
       try {
-        const response = await this.$axios.post('/signup', this.empresaForm)
-        console.log('Respuesta del backend:', response.data)
+        if (process.client) {
+          const token = localStorage.getItem('token')
+          if (!token) {
+            this.$router.push('/')
+            return
+          }
 
-        if (response.data) {
-          this.empresas.push(response.data)
+          const response = await this.$axios.post('/auth/signup', this.empresaForm, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+
+          if (response.data) {
+            this.empresas.push(response.data)
+          }
+
+          this.fetchEmpresas()
+          this.dialog = false
         }
-
-        this.fetchEmpresas()
-        this.dialog = false
       } catch (error) {
         console.error('Error al agregar empresa:', error)
       }
     },
-
     async editEmpresa () {
       if (!this.currentEmpresaId) { return }
 
       try {
-        const response = await this.$axios.put(`/empresas/${this.currentEmpresaId}`, this.empresaForm)
-        console.log('Respuesta del backend:', response.data)
+        if (process.client) {
+          const token = localStorage.getItem('token')
+          if (!token) {
+            this.$router.push('/')
+            return
+          }
 
-        const index = this.empresas.findIndex(e => e.id === this.currentEmpresaId)
-        if (index !== -1) {
-          this.$set(this.empresas, index, response.data)
+          const response = await this.$axios.put(`/auth/empresas/${this.currentEmpresaId}`, this.empresaForm, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+
+          const index = this.empresas.findIndex(e => e.id === this.currentEmpresaId)
+          if (index !== -1) {
+            this.$set(this.empresas, index, response.data)
+          }
+
+          this.fetchEmpresas()
+          this.dialog = false
         }
-
-        this.fetchEmpresas()
-        this.dialog = false
       } catch (error) {
         console.error('Error al editar empresa:', error)
       }
     },
-
     async deleteEmpresa (id) {
       try {
-        await this.$axios.delete(`/empresas/${id}`)
-        this.empresas = this.empresas.filter(e => e.id !== id)
+        if (process.client) {
+          const token = localStorage.getItem('token')
+          if (!token) {
+            this.$router.push('/')
+            return
+          }
 
-        this.fetchEmpresas()
+          await this.$axios.delete(`/auth/empresas/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+
+          this.empresas = this.empresas.filter(e => e.id !== id)
+          this.fetchEmpresas()
+        }
       } catch (error) {
         console.error('Error al eliminar empresa:', error)
       }
     },
-
     async fetchEmpresas () {
       try {
-        const response = await this.$axios.get('auth/empresas')
-        console.log('Empresas obtenidas:', response.data)
+        if (process.client) {
+          const token = localStorage.getItem('token')
+          if (!token) {
+            this.$router.push('/')
+            return
+          }
 
-        if (response.data && typeof response.data === 'object') {
-          this.empresas = Object.values(response.data).map((empresa, index) => ({
-            ...empresa,
-            id: Object.keys(response.data)[index]
-          }))
-        } else {
-          console.error('El backend no devolvió un objeto:', response.data)
-          this.empresas = []
+          const response = await this.$axios.get('auth/empresas', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+
+          if (response.data && typeof response.data === 'object') {
+            this.empresas = Object.values(response.data).map((empresa, index) => ({
+              ...empresa,
+              id: Object.keys(response.data)[index]
+            }))
+          } else {
+            console.error('El backend no devolvió un objeto:', response.data)
+            this.empresas = []
+          }
         }
       } catch (error) {
         console.error('Error al obtener empresas:', error)
@@ -175,13 +225,12 @@ export default {
     }
   }
 }
-
 </script>
 
 <style scoped>
 
 .v-data-table {
-  background-color: #5A1B86;
+  background-color: #4040407e;
 }
 
 .v-data-table th {

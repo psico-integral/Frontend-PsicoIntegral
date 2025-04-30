@@ -1,44 +1,49 @@
 <template>
   <SidebarLayout>
-    <div class="p-6">
-      <h2 class="text-2xl font-bold mb-6">
-        Selecciona una Empresa
+    <div class="container mx-auto p-8">
+      <!-- Título Principal -->
+      <h2 class="text-4xl font-semibold text-gray-800 mb-8">
+        Selecciona una Empresa 🏢
       </h2>
 
       <!-- Tarjetas de Empresas -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <div
           v-for="(empleados, nombre) in empresas"
           :key="nombre"
-          class="card-empresa max-w-sm mx-auto border rounded-xl p-4 cursor-pointer transition-all duration-300 transform hover:scale-105"
+          class="empresa-card p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 cursor-pointer"
           :class="{
-            'bg-blue-100 border-blue-400 ring-2 ring-blue-500': empresaSeleccionada === nombre,
-            'hover:shadow-md hover:bg-blue-50': empresaSeleccionada !== nombre
+            'bg-blue-600 text-white': empresaSeleccionada === nombre,
+            'bg-white text-gray-900': empresaSeleccionada !== nombre
           }"
           @click="toggleEmpresa(nombre)"
         >
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="text-lg font-semibold text-gray-800">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl font-semibold">
               {{ nombre }}
             </h3>
+            <span class="text-sm font-medium text-gray-600">{{ Object.keys(empleados).length }} empleados</span>
           </div>
-          <p class="text-sm text-gray-600">
-            {{ Object.keys(empleados).length }} empleado(s)
-          </p>
-          <ul class="mt-4 space-y-2">
-            <li
-              class="flex items-center text-red-600 hover:text-red-800 cursor-pointer"
-              @click.stop="eliminarEmpresa(nombre)"
-            >
-              <span class="mdi mdi-delete icono-eliminar mr-2" /> Eliminar
-            </li>
-          </ul>
+          <div class="mt-4">
+            <p class="text-sm text-gray-600">
+              <span class="font-semibold">🗄️Número de empleados: ({{ Object.keys(empleados).length }})</span>
+            </p>
+            <ul class="mt-4 space-y-2">
+              <v-btn
+                color="red"
+                class="text-red-600 hover:text-red-700 cursor-pointer transition-colors"
+                @click.stop="eliminarEmpresa(nombre)"
+              >
+                <i class="mdi mdi-delete-outline mr-2" /> Eliminar Empresa
+              </v-btn>
+            </ul>
+          </div>
         </div>
       </div>
 
       <!-- Selección de Empleado -->
       <div v-if="empresaSeleccionada && empleadosSeleccionados">
-        <h3 class="text-xl font-semibold mb-4">
+        <h3 class="text-3xl font-semibold mt-12 text-gray-800">
           Selecciona un Empleado
         </h3>
         <EmpleadosComponent
@@ -50,43 +55,49 @@
 
       <!-- Mostrar Respuestas de un Empleado -->
       <div v-if="empleadoSeleccionado && respuestasTabla && Object.keys(respuestasTabla).length">
-        <h3 class="text-xl font-semibold mt-6">
+        <h3 class="text-3xl font-semibold mt-12 text-gray-800">
           Respuestas de {{ empleadoSeleccionado }}
         </h3>
-        <div class="flex space-x-4 mb-4">
-          <v-button
-            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+        <div class="mt-6 flex justify-start space-x-6">
+          <v-btn
+            color="#9163CB"
             @click="exportarPDF"
           >
             Exportar a PDF 📄
-          </v-button>
+          </v-btn>
         </div>
         <div
           v-for="(items, cuestionario) in respuestasTabla"
           :key="cuestionario"
-          class="mb-6"
+          class="mt-8"
         >
-          <h4 class="text-lg font-bold mb-2">
+          <h4 class="text-2xl font-semibold text-gray-900 mb-4">
             {{ cuestionario.replace('_', ' ').toUpperCase() }}
           </h4>
-          <div class="bg-gray-100 p-4 rounded overflow-x-auto">
-            <table class="min-w-full table-auto bg-white border border-gray-300 rounded shadow-sm">
+          <div class="bg-white rounded-xl shadow-lg p-6">
+            <table class="min-w-full table-auto border-separate border-spacing-0">
               <thead class="bg-gray-200">
                 <tr>
-                  <th class="border px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                  <th class="px-6 py-4 text-left text-lg font-semibold text-gray-800">
+                    No. Pregunta
+                  </th>
+                  <th class="px-6 py-4 text-left text-lg font-semibold text-gray-800">
                     Pregunta
                   </th>
-                  <th class="border px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                  <th class="px-6 py-4 text-left text-lg font-semibold text-gray-800">
                     Respuesta
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in items" :key="index" class="hover:bg-gray-50">
-                  <td class="border px-4 py-2 text-sm text-gray-800">
+                <tr v-for="(item, index) in items" :key="index" class="hover:bg-gray-50 transition-colors">
+                  <td class="px-6 py-4 text-md text-gray-500 border-b">
+                    {{ index + 1 }}
+                  </td>
+                  <td class="px-6 py-4 text-md text-gray-800 border-b">
                     {{ item.pregunta }}
                   </td>
-                  <td class="border px-4 py-2 text-sm text-gray-800">
+                  <td class="px-6 py-4 text-md text-gray-700 border-b">
                     {{ item.respuesta }}
                   </td>
                 </tr>
@@ -201,7 +212,7 @@ export default {
             43: 'Para hacer mi trabajo debo demostrar sentimientos distintos a los míos'
           },
           seccion_4: {
-            '01': 'Soy jefe de otros trabajadores"'
+            '01': 'Soy jefe de otros trabajadores'
           },
           seccion_5: {
             44: 'Comunican tarde los asuntos de trabajo',
@@ -275,6 +286,24 @@ export default {
             62: 'Se ignoran mis éxitos laborales y se atribuyen a otros trabajadores',
             63: 'Me bloquean o impiden las oportunidades que tengo para obtener ascenso o mejora en mi trabajo',
             64: 'He presenciado actos de violencia en mi centro de trabajo'
+          },
+          seccion_2: {
+            '01': 'En mi trabajo debo brindar servicio a clientes o usuarios'
+          },
+          seccion_3: {
+            65: 'Atiendo clientes o usuarios muy enojados',
+            66: 'Mi trabajo me exige atender personas muy necesitadas de ayuda o enfermas',
+            67: 'Para hacer mi trabajo debo demostrar sentimientos distintos a los míos',
+            68: 'Mi trabajo me exige atender situaciones de violencia'
+          },
+          seccion_4: {
+            '01': 'Soy jefe de otros trabajadores'
+          },
+          seccion_5: {
+            69: 'Comunican tarde los asuntos de trabajo',
+            70: 'Dificultan el logro de los resultados del trabajo',
+            71: 'Cooperan poco cuando se necesita',
+            72: 'Ignoran las sugerencias para mejorar su trabajo'
           }
         }
       }
@@ -295,6 +324,12 @@ export default {
     }
   },
   mounted () {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      this.$router.push('/')
+      return
+    }
+
     this.cargarEmpresas()
   },
   methods: {
@@ -337,13 +372,14 @@ export default {
           doc.text(cuestionario.replace('_', ' ').toUpperCase(), 14, y)
           y += 6
 
-          const tableData = items.map(({ pregunta, respuesta }) => [
+          const tableData = items.map(({ pregunta, respuesta }, index) => [
+            index + 1,
             pregunta,
             respuesta
           ])
 
           autoTable(doc, {
-            head: [['Pregunta', 'Respuesta']],
+            head: [['No. Pregunta', 'Pregunta', 'Respuesta']],
             body: tableData,
             startY: y,
             margin: { left: 14, right: 14 },
@@ -361,7 +397,18 @@ export default {
     },
     async cargarEmpresas () {
       try {
-        const res = await this.$axios.get('/respuestas')
+        const token = localStorage.getItem('token')
+        if (!token) {
+          this.$router.push('/')
+          return
+        }
+
+        const res = await this.$axios.get('/respuestas', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
         this.empresas = res.data || {}
       } catch (error) {
         console.error('Error al cargar empresas:', error)
@@ -376,7 +423,21 @@ export default {
       this.respuestasTabla = {}
 
       try {
-        const res = await this.$axios.get(`/respuestas/${this.empresaSeleccionada}/${nombreEmpleado}`)
+        const token = localStorage.getItem('token')
+        if (!token) {
+          this.$router.push('/')
+          return
+        }
+
+        const res = await this.$axios.get(
+      `/respuestas/${this.empresaSeleccionada}/${nombreEmpleado}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+        )
+
         console.log('Datos recibidos:', res.data)
         const respuestas = res.data?.respuestas || {}
 
@@ -400,10 +461,9 @@ export default {
               })
             }
           }
-          console.log('Respuestas generadas para tabla:', this.respuestasTabla)
 
           this.$set(this.respuestasTabla, cuestionario, respuestasLista)
-          console.log('Respuestas del cuestionario:', this.respuestasTabla[cuestionario]) // Añadir un log para verificar
+          console.log('Respuestas del cuestionario:', this.respuestasTabla[cuestionario])
         }
       } catch (error) {
         console.error('Error al cargar respuestas:', error)
@@ -412,7 +472,18 @@ export default {
     async eliminarEmpresa (nombre) {
       if (confirm(`¿Seguro que deseas eliminar la empresa "${nombre}"?`)) {
         try {
-          await this.$axios.delete(`/respuestas/${nombre}`)
+          const token = localStorage.getItem('token')
+          if (!token) {
+            this.$router.push('/')
+            return
+          }
+
+          await this.$axios.delete(`/respuestas/${nombre}`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+
           this.empresaSeleccionada = ''
           this.respuestasEmpleado = null
           this.respuestasTabla = []
@@ -441,110 +512,108 @@ export default {
 </script>
 
 <style scoped>
-/* Estilo CSS personalizado */
-.icono-eliminar {
-  font-size: 2rem;
-}
-
-/* Estilos para las tarjetas de Empresa */
-.card-empresa {
-  transition: all 0.3s ease;
-  padding: 1rem;
-  border-radius: 1rem;
-  cursor: pointer;
-  border: 1px solid #e2e8f0;
-  max-width: 20rem;
-  width: 100%;
+/* Contenedor Principal */
+.container {
+  max-width: 1200px;
   margin: 0 auto;
+  padding-top: 40px;
 }
 
-.card-empresa:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Estilos de la tarjeta de empresa */
+.empresa-card {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 1.5rem;
 }
 
-.card-empresa.selected {
-  background-color: #ebf8ff;
-  border-color: #4299e1;
-  box-shadow: 0 4px 10px rgba(66, 153, 225, 0.3);
+.empresa-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
-.card-empresa ul {
+.empresa-card.bg-blue-600 {
+  background-color: #9163CB;
+}
+
+.empresa-card.bg-blue-600.text-white {
+  color: white;
+}
+
+.empresa-card.bg-white {
+  background-color: #5A1B86;
+}
+
+.empresa-card.text-gray-900 {
+  color: rgb(255, 255, 255)
+}
+
+/* Eliminar Empresa */
+.empresa-card ul {
   list-style-type: none;
-  padding: 0;
 }
 
-.card-empresa li {
-  font-size: 1rem;
-  cursor: pointer;
+.empresa-card li {
+  font-size: 1.1rem;
   color: #e53e3e;
+  cursor: pointer;
   transition: color 0.3s ease;
-  display: flex;
-  align-items: center;
 }
 
-.card-empresa li:hover {
+.empresa-card li:hover {
   color: #c53030;
 }
 
-.card-empresa li i {
-  margin-right: 8px;
+.empresa-card li i {
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
 }
 
-/* Estilos para los items de empleados */
-.card-empleado {
-  display: inline-block;
-  background-color: #edf2f7;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  margin: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  max-width: 18rem;
-  width: 100%;
+/* Botón de Exportar */
+.v-button {
+  border-radius: 9999px;
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
-.card-empleado:hover {
-  background-color: #e2e8f0;
-  transform: scale(1.05);
+.v-button:hover {
+  transform: translateY(-2px);
+  background-color: #2b6cb0;
 }
 
-/* Botón de Eliminar Respuestas */
-.btn-eliminar-respuestas {
-  background-color: #e53e3e;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
-  transition: background-color 0.3s ease;
-}
-
-.btn-eliminar-respuestas:hover {
-  background-color: #c53030;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Sombra suave para tarjetas */
-.card-empresa,
-.card-empleado {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Tabla */
+/* Estilos de la tabla */
 table {
-  border-collapse: collapse;
   width: 100%;
+  border-collapse: collapse;
 }
 
-th, td {
-  border: 1px solid #d1d5db;
-  padding: 0.75rem;
+th,
+td {
+  padding: 1.2rem;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
 }
 
-thead {
-  background-color: #e5e7eb;
+th {
+  background-color: #5A1B86;
+  color: #ffffff;
+}
+
+tbody tr {
+  background-color: white;
 }
 
 tbody tr:hover {
   background-color: #f9fafb;
+}
+
+tbody td {
+  color: #000000;
+}
+
+tbody td:first-child {
+  font-weight: 500;
 }
 </style>

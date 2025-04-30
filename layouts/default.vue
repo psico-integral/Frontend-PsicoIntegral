@@ -60,14 +60,16 @@ export default {
 <style scoped>
 .custom-footer {
   background-color: #5A1B86; /* Color del pie de página */
-  color: white; /* Color del texto del pie de página */
+  color: rgb(255, 255, 255); /* Color del texto del pie de página */
 }
 
 .v-application {
-  background-color: #9163CB; /* Color de fondo de la aplicación */
-  color: white; /* Color del texto de la aplicación */
+  background-image: url('@/assets/fondo.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  color: white;
 }
-
 .v-navigation-drawer {
   background-color: #135d73; /* Color del cajón de navegación */
 }
