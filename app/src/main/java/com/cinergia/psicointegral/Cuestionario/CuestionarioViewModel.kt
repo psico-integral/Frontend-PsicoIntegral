@@ -29,6 +29,10 @@ class CuestionarioViewModel : ViewModel() {
     private val _mensajeAdvertencia = MutableLiveData<String?>()
     val mensajeAdvertencia: LiveData<String?> get() = _mensajeAdvertencia
 
+    private val _preguntasFaltantes = MutableLiveData<List<String>>(emptyList())
+    val preguntasFaltantes: LiveData<List<String>> get() = _preguntasFaltantes
+
+
     private var nombreEmpresa: String = ""
     private var nombreEmpleado: String = ""
 
@@ -69,6 +73,13 @@ class CuestionarioViewModel : ViewModel() {
         respuestasActuales[id] = respuesta
         _respuestas.value = respuestasActuales
 
+        // Actualizar faltantes dinámicamente
+        val faltantesActuales = _preguntasFaltantes.value?.toMutableList() ?: mutableListOf()
+        if (faltantesActuales.contains(id)) {
+            faltantesActuales.remove(id)
+            _preguntasFaltantes.value = faltantesActuales
+        }
+
         val secciones = cuestionariosMap[clave] ?: return
         val idsPreguntasSeccion = secciones[seccionIndex].seccion.keys.toList()
         val respondidas = idsPreguntasSeccion.count { respuestasActuales.containsKey(it) }
@@ -78,8 +89,11 @@ class CuestionarioViewModel : ViewModel() {
         if (evaluarAvance && esUltima && respondidas < total) {
             _mensajeAdvertencia.value = "Falta responder una o más preguntas de esta sección."
             intentoAvanzarConPreguntasFaltantes = true
+            _preguntasFaltantes.value = idsPreguntasSeccion.filter { !respuestasActuales.containsKey(it) }
             return
         }
+        _preguntasFaltantes.value = emptyList()
+
 
         if (intentoAvanzarConPreguntasFaltantes && respondidas == total) {
             _mensajeAdvertencia.value = null
@@ -145,6 +159,7 @@ class CuestionarioViewModel : ViewModel() {
             }
             3 -> {
                 if (respuestasActuales["01"]?.lowercase() == "no") {
+                    guardarRespuestasEnFirebase()
                     _claveActual.value = "fin"
                     _finalizado.value = true
                     return
@@ -154,6 +169,7 @@ class CuestionarioViewModel : ViewModel() {
                 }
             }
             4 -> {
+                guardarRespuestasEnFirebase()
                 _claveActual.value = "fin"
                 _finalizado.value = true
                 return

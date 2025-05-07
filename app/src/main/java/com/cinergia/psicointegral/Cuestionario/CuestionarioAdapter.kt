@@ -12,7 +12,8 @@ class CuestionarioAdapter(
     private val preguntas: List<Pair<String, Pregunta>>,
     private val onRespuestaSeleccionada: (String, String) -> Unit,
     var respuestasGuardadas: Map<String, String>,
-    private val mostrarSoloPrimera: Boolean
+    private val mostrarSoloPrimera: Boolean,
+    private var preguntasFaltantes: List<String> // ← la dejé como var para actualizarla después
 ) : RecyclerView.Adapter<CuestionarioAdapter.PreguntaViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PreguntaViewHolder {
@@ -26,7 +27,7 @@ class CuestionarioAdapter(
 
     override fun onBindViewHolder(holder: PreguntaViewHolder, position: Int) {
         val (id, pregunta) = preguntas[position]
-        holder.bind(id, pregunta)
+        holder.bind(id, pregunta, preguntasFaltantes.contains(id)) // ← Pasamos si está faltando
     }
 
     fun actualizarRespuestas(nuevasRespuestas: Map<String, String>) {
@@ -34,11 +35,25 @@ class CuestionarioAdapter(
         notifyDataSetChanged()
     }
 
+    //
+    fun actualizarFaltantes(nuevasFaltantes: List<String>) {
+        preguntasFaltantes = nuevasFaltantes
+        notifyDataSetChanged()
+    }
+
     inner class PreguntaViewHolder(private val binding: ItemPreguntaBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(id: String, pregunta: Pregunta) {
+        fun bind(id: String, pregunta: Pregunta, estaFaltando: Boolean) {
             binding.textPregunta.text = pregunta.pregunta
+
+            val color = if (estaFaltando) {
+                ContextCompat.getColor(binding.root.context, R.color.rojo)
+            } else {
+                ContextCompat.getColor(binding.root.context, R.color.morado_oscuro)
+            }
+            binding.textPregunta.setTextColor(color)
+
             val radioGroup = binding.radioGroup
             radioGroup.removeAllViews()
 
@@ -63,9 +78,8 @@ class CuestionarioAdapter(
 
             radioGroup.setOnCheckedChangeListener { group, checkedId ->
                 val selected = group.findViewById<RadioButton>(checkedId)
-                if (selected != null) {  // Verifica si selected no es null
+                if (selected != null) {
                     val respuesta = selected.text.toString()
-
                     if (respuesta != selectedId) {
                         selectedId = respuesta
                         onRespuestaSeleccionada(id, respuesta)
@@ -75,4 +89,3 @@ class CuestionarioAdapter(
         }
     }
 }
-

@@ -73,6 +73,10 @@ class CuestionarioActivity : AppCompatActivity() {
             }
         }
 
+        viewModel.preguntasFaltantes.observe(this) { faltantes ->
+            adapter.actualizarFaltantes(faltantes)
+        }
+
         if (viewModel.indiceSeccion.value == 0) {
             viewModel.reiniciarCuestionario()
         }
@@ -100,7 +104,8 @@ class CuestionarioActivity : AppCompatActivity() {
                     viewModel.guardarRespuesta(id, respuesta, tipo, evaluarAvance = esUltimaPregunta)
                 },
                 respuestasGuardadas = viewModel.respuestas.value ?: emptyMap(),
-                mostrarSoloPrimera = mostrarSoloPrimera
+                mostrarSoloPrimera = viewModel.mostrarSoloPrimeraPregunta.value == true,
+                preguntasFaltantes = viewModel.preguntasFaltantes.value ?: emptyList()
             )
 
             binding.recyclerView.adapter = adapter
