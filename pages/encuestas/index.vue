@@ -34,7 +34,7 @@
                 class="text-red-600 hover:text-red-700 cursor-pointer transition-colors"
                 @click.stop="eliminarEmpresa(nombre)"
               >
-                <i class="mdi mdi-delete-outline mr-2" /> Eliminar Empresa
+                <i class="mdi mdi-delete-outline mr-2" /> Eliminar Respuestas De Empleados
               </v-btn>
             </ul>
           </div>

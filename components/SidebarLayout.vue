@@ -76,7 +76,7 @@
           Créditos
         </v-card-title>
         <v-card-text>
-          Esta aplicación fue desarrollada por <strong>María Luisa Aguilar Pérez (Whicha)</strong> y <strong>Javier Yépez Ramírez</strong> para <strong>Psico-Integral</strong> <strong>, junto con la app</strong>.
+          Esta aplicación fue desarrollada por <strong>Javier Yépez Ramírez</strong> para <strong>Psico-Integral</strong> <strong>, junto con la app</strong>.
         </v-card-text>
         <v-card-actions>
           <v-spacer />
