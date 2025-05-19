@@ -47,8 +47,15 @@
             <v-text-field
               v-model="empresaForm.contrasena"
               label="Contraseña"
-              type="password"
               required
+            />
+            <v-text-field
+              v-model="empresaForm.noEmpresa"
+              label="No. Empleados"
+              required
+              type="text"
+              @keypress="onlyNumber($event)"
+              @input="empresaForm.noEmpresa = empresaForm.noEmpresa.replace(/\D/g, '')"
             />
           </v-card-text>
           <v-card-actions>
@@ -80,12 +87,15 @@ export default {
         { text: 'Nombre de la empresa', align: 'start', value: 'nombre', sortable: true },
         { text: 'Usuario', align: 'start', value: 'usuario', sortable: true },
         { text: 'Contraseña', align: 'start', value: 'contrasena', sortable: false },
+        { text: 'No. Empleados', align: 'start', value: 'noEmpresa', sortable: false },
+        { text: 'No. Ingresos', align: 'start', value: 'limLogeo', sorteable: false },
         { text: 'Acciones', value: 'actions', sortable: false }
       ],
       empresaForm: {
         nombre: '',
         usuario: '',
-        contrasena: ''
+        contrasena: '',
+        noEmpresa: ''
       },
       dialog: false,
       isEdit: false,
@@ -104,6 +114,13 @@ export default {
     }
   },
   methods: {
+    onlyNumber (event) {
+    // Permitir solo teclas numéricas (0-9)
+      const char = String.fromCharCode(event.which)
+      if (!/[0-9]/.test(char)) {
+        event.preventDefault()
+      }
+    },
     openAddDialog () {
       this.isEdit = false
       this.empresaForm = { nombre: '', usuario: '', contrasena: '' }

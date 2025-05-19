@@ -203,6 +203,7 @@ export default {
             39: 'Me bloquean o impiden las oportunidades que tengo para obtener ascenso o mejora en mi trabajo',
             40: 'He presenciado actos de violencia en mi centro de trabajo'
           },
+
           seccion_2: {
             '01': 'En mi trabajo debo brindar servicio a clientes o usuarios'
           },
@@ -450,9 +451,18 @@ export default {
             const preguntas = secciones[seccion]
             const preguntasSeccion = preguntasCuestionario[seccion] || {}
 
-            for (const idPregunta in preguntas) {
+            // Ordenar IDs de pregunta numéricamente para que 10 no venga antes que 2
+            const idsOrdenados = Object.keys(preguntas).sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+
+            for (const idPregunta of idsOrdenados) {
               const valor = preguntas[idPregunta]
-              const textoPregunta = preguntasSeccion[idPregunta] || `Pregunta ${idPregunta}`
+              let textoPregunta = preguntasSeccion[idPregunta]
+
+              if (!textoPregunta) {
+                const idCompuesto = `${cuestionario}/${seccion}/${idPregunta}`
+                textoPregunta = this.preguntasPorId[idCompuesto] || `Pregunta ${idPregunta}`
+              }
+
               const textoRespuesta = this.obtenerTextoRespuesta(valor)
 
               respuestasLista.push({
@@ -469,6 +479,7 @@ export default {
         console.error('Error al cargar respuestas:', error)
       }
     },
+
     async eliminarEmpresa (nombre) {
       if (confirm(`¿Seguro que deseas eliminar la empresa "${nombre}"?`)) {
         try {
