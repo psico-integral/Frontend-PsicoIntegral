@@ -508,7 +508,7 @@ export default {
     obtenerTextoRespuesta (valor) {
       const respuestas = {
         0: '---',
-        1: 'Sí',
+        1: 'RESPUESTA DEL ENCUESTAS(NO COMPONETE)',
         2: 'No',
         3: 'Nunca',
         4: 'Rara vez',

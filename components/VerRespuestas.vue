@@ -80,7 +80,7 @@ export default {
     // Convertir el valor numérico en su correspondiente texto
     obtenerRespuesta (valor) {
       switch (valor) {
-        case 1: return 'Sí'
+        case 1: return 'Componente'
         case 2: return 'No'
         case 3: return 'Nunca'
         case 4: return 'Rara vez'
