@@ -44,7 +44,7 @@
       <!-- Selección de Empleado -->
       <div v-if="empresaSeleccionada && empleadosSeleccionados">
         <h3 class="text-3xl font-semibold mt-12 text-gray-800">
-          Selecciona un Empleado
+          Selecciona un Empleado👷‍♀️👷‍♂️
         </h3>
         <EmpleadosComponent
           :empleados="empresas[empresaSeleccionada]"
@@ -56,7 +56,7 @@
       <!-- Mostrar Respuestas de un Empleado -->
       <div v-if="empleadoSeleccionado && respuestasTabla && Object.keys(respuestasTabla).length">
         <h3 class="text-3xl font-semibold mt-12 text-gray-800">
-          Respuestas de {{ empleadoSeleccionado }}
+          Respuestas de {{ empleadoSeleccionado }} ✏️
         </h3>
         <div class="mt-6 flex justify-start space-x-6">
           <v-btn
@@ -74,36 +74,23 @@
           <h4 class="text-2xl font-semibold text-gray-900 mb-4">
             {{ cuestionario.replace('_', ' ').toUpperCase() }}
           </h4>
-          <div class="bg-white rounded-xl shadow-lg p-6">
-            <table class="min-w-full table-auto border-separate border-spacing-0">
-              <thead class="bg-gray-200">
-                <tr>
-                  <th class="px-6 py-4 text-left text-lg font-semibold text-gray-800">
-                    No. Pregunta
-                  </th>
-                  <th class="px-6 py-4 text-left text-lg font-semibold text-gray-800">
-                    Pregunta
-                  </th>
-                  <th class="px-6 py-4 text-left text-lg font-semibold text-gray-800">
-                    Respuesta
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, index) in items" :key="index" class="hover:bg-gray-50 transition-colors">
-                  <td class="px-6 py-4 text-md text-gray-500 border-b">
-                    {{ index + 1 }}
-                  </td>
-                  <td class="px-6 py-4 text-md text-gray-800 border-b">
-                    {{ item.pregunta }}
-                  </td>
-                  <td class="px-6 py-4 text-md text-gray-700 border-b">
-                    {{ item.respuesta }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <h4 class="text-xl font-semibold text-gray-900 mb-4">
+            Puntaje total: {{ sumatoriasPorCuestionario[cuestionario] }}
+          </h4>
+
+          <RespuestasTabla :items="items" />
+
+          <SumatoriasCategorias 
+            v-if="sumatoriasPorCategoria[cuestionario]"
+            :sumatorias="sumatoriasPorCategoria[cuestionario]" 
+            :cuestionario="parseInt(cuestionario.split('_')[1])"
+            class="mb-6" />
+
+          <SumatoriasDominios 
+            v-if="sumatoriasPorDominio[cuestionario]" 
+            :sumatorias="sumatoriasPorDominio[cuestionario]"
+            :cuestionario="parseInt(cuestionario.split('_')[1])"
+            class="mb-6 mt-8" />
         </div>
       </div>
     </div>
@@ -115,10 +102,16 @@ import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import EmpleadosComponent from '@/components/EmpleadosComponent.vue'
 import SidebarLayout from '@/components/SidebarLayout.vue'
+import RespuestasTabla from '@/components/RespuestasTabla.vue'
+import SumatoriasCategorias from '@/components/SumatoriasCategorias.vue'
+import SumatoriasDominios from '@/components/SumatoriasDominios.vue'
 
 export default {
   components: {
     SidebarLayout,
+    RespuestasTabla,
+    SumatoriasCategorias,
+    SumatoriasDominios,
     EmpleadosComponent
   },
   data () {
@@ -128,6 +121,7 @@ export default {
       respuestasEmpleado: null,
       respuestasTabla: {},
       empleadoSeleccionado: '',
+      sumatoriasPorCuestionario: {},
       empleadosSeleccionados: false,
       preguntasCuestionarios: {
         cuestionario_01: {
@@ -419,9 +413,57 @@ export default {
       this.empresaSeleccionada = this.empresaSeleccionada === nombre ? '' : nombre
       this.empleadosSeleccionados = !!this.empresaSeleccionada
     },
+    obtenerValorPonderado (cuestionario, numeroPregunta, valorCrudo) {
+      if (valorCrudo === 0) { return '---' } // No contestó
+
+      const tipoBC2 = [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+      const tipoAC2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]
+
+      const tipoBC3 = [1, 4, 23, 24, 25, 26, 27, 28, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 55, 56, 57]
+      const tipoAC3 = [2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 29, 54, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
+
+      const mapaDirecto = {
+        3: 0,
+        4: 1,
+        5: 2,
+        6: 3,
+        7: 4
+      }
+
+      const mapaInvertido = {
+        7: 0,
+        6: 1,
+        5: 2,
+        4: 3,
+        3: 4
+      }
+
+      if (cuestionario === 'cuestionario_01') {
+        const mapa = {
+          1: 0,
+          2: 0
+        }
+        return mapa[valorCrudo] ?? '---'
+      }
+
+      if (cuestionario === 'cuestionario_02') {
+        if (tipoBC2.includes(numeroPregunta)) { return mapaInvertido[valorCrudo] ?? '---' }
+        if (tipoAC2.includes(numeroPregunta)) { return mapaDirecto[valorCrudo] ?? '---' }
+      }
+
+      if (cuestionario === 'cuestionario_03') {
+        if (tipoBC3.includes(numeroPregunta)) { return mapaInvertido[valorCrudo] ?? '---' }
+        if (tipoAC3.includes(numeroPregunta)) { return mapaDirecto[valorCrudo] ?? '---' }
+      }
+
+      return valorCrudo
+    },
     async verRespuestas ({ nombreEmpleado }) {
       this.empleadoSeleccionado = nombreEmpleado
       this.respuestasTabla = {}
+      this.sumatoriasPorCuestionario = {}
+      this.sumatoriasPorCategoria = {}
+      this.sumatoriasPorDominio = {}
 
       try {
         const token = localStorage.getItem('token')
@@ -439,7 +481,6 @@ export default {
       }
         )
 
-        console.log('Datos recibidos:', res.data)
         const respuestas = res.data?.respuestas || {}
 
         for (const cuestionario in respuestas) {
@@ -447,11 +488,69 @@ export default {
           const preguntasCuestionario = this.preguntasCuestionarios[cuestionario] || {}
           const respuestasLista = []
 
+          let sumaPonderada = 0
+
+          // Inicializa sumatoria por categoría si es cuestionario 2
+          const sumatoriaPorCategoria = {}
+          const sumatoriaPorDominio = {}
+
+          const categoriasC2 = {
+            'Ambiente de trabajo': [1, 2, 3],
+            'Factores propios de la actividad': [4, 5, 6, 7, 8, 9, 41, 42, 43],
+            'Organización del tiempo de trabajo': [17, 18],
+            Liderazgo: [31, 32, 33, 34, 37, 38, 39, 40, 41]
+          }
+          const dominiosC2 = {
+            'Condiciones en el ambiente de trabajo': [1, 2, 3],
+            'Carga de trabajo': [4, 5, 6, 7, 8, 9, 41, 42, 43],
+            'Falta de control sobre el trabajo': [18, 19, 20, 21, 22, 26, 27],
+            'Organización del tiempo de trabajo': [17, 18],
+            'Interferencia en la relación trabajo-familia': [19, 20, 21],
+            Liderazgo: [31, 32, 33, 34],
+            'Relaciones en el trabajo': [37, 38, 39, 40, 41, 42, 43],
+            'Violencia laboral': [44, 45, 46]
+          }
+          const categoriasC3 = {
+            'Ambiente de trabajo': [1, 3],
+            'Factores propios de la actividad': [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 29, 30, 35, 36, 65, 66, 67, 68],
+            'Organización del tiempo de trabajo': [17, 18, 19, 20, 21, 22],
+            'Liderazgo y relaciones en el trabajo': [31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 57, 58, 59, 60, 61, 62, 63, 64, 69, 70, 71, 72],
+            'Entorno organizacional': [47, 48, 49, 50, 51, 52, 53, 54, 55, 56]
+          }
+          const dominiosC3 = {
+            'Condiciones en el ambiente de trabajo': [1, 3],
+            'Carga de trabajo': [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 65, 66, 67, 68],
+            'Falta de control sobre el trabajo': [23, 24, 25, 26, 27, 28, 29, 30, 35, 36],
+            'Jornada de trabajo': [17, 18],
+            'Interferencia trabajo-familia': [19, 20, 21, 22],
+            Liderazgo: [31, 32, 33, 34, 37, 38, 39, 40, 41],
+            'Relaciones en el trabajo': [42, 43, 44, 45, 46, 69, 70, 71],
+            'Violencia laboral': [57, 58, 59, 60, 61, 62, 63, 64],
+            'Reconocimiento del desempeño': [47, 48, 49, 50, 51, 52],
+            'Insuficiente sentido de pertenencia e, inestabilidad': [53, 54, 55, 56]
+          }
+
+          if (cuestionario === 'cuestionario_02') {
+            for (const cat in categoriasC2) {
+              sumatoriaPorCategoria[cat] = 0
+            }
+            for (const dom in dominiosC2) {
+              sumatoriaPorDominio[dom] = 0
+            }
+          }
+          if (cuestionario === 'cuestionario_03') {
+            for (const cat in categoriasC3) {
+              sumatoriaPorCategoria[cat] = 0
+            }
+            for (const dom in dominiosC3) {
+              sumatoriaPorDominio[dom] = 0
+            }
+          }
+
           for (const seccion in secciones) {
             const preguntas = secciones[seccion]
             const preguntasSeccion = preguntasCuestionario[seccion] || {}
 
-            // Ordenar IDs de pregunta numéricamente para que 10 no venga antes que 2
             const idsOrdenados = Object.keys(preguntas).sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
 
             for (const idPregunta of idsOrdenados) {
@@ -463,7 +562,38 @@ export default {
                 textoPregunta = this.preguntasPorId[idCompuesto] || `Pregunta ${idPregunta}`
               }
 
+              const numeroPregunta = parseInt(idPregunta)
+              const valorPonderado = this.obtenerValorPonderado(cuestionario, numeroPregunta, valor)
               const textoRespuesta = this.obtenerTextoRespuesta(valor)
+
+              if (typeof valorPonderado === 'number') {
+                sumaPonderada += valorPonderado
+
+                if (cuestionario === 'cuestionario_02') {
+                  for (const [cat, preguntasCat] of Object.entries(categoriasC2)) {
+                    if (preguntasCat.includes(numeroPregunta)) {
+                      sumatoriaPorCategoria[cat] += valorPonderado
+                    }
+                  }
+                  for (const [dom, preguntasDom] of Object.entries(dominiosC2)) {
+                    if (preguntasDom.includes(numeroPregunta)) {
+                      sumatoriaPorDominio[dom] += valorPonderado
+                    }
+                  }
+                }
+                if (cuestionario === 'cuestionario_03') {
+                  for (const [cat, preguntasCat] of Object.entries(categoriasC3)) {
+                    if (preguntasCat.includes(numeroPregunta)) {
+                      sumatoriaPorCategoria[cat] += valorPonderado
+                    }
+                  }
+                  for (const [dom, preguntasDom] of Object.entries(dominiosC3)) {
+                    if (preguntasDom.includes(numeroPregunta)) {
+                      sumatoriaPorDominio[dom] += valorPonderado
+                    }
+                  }
+                }
+              }
 
               respuestasLista.push({
                 pregunta: textoPregunta,
@@ -473,13 +603,21 @@ export default {
           }
 
           this.$set(this.respuestasTabla, cuestionario, respuestasLista)
-          console.log('Respuestas del cuestionario:', this.respuestasTabla[cuestionario])
+          this.$set(this.sumatoriasPorCuestionario, cuestionario, sumaPonderada)
+
+          if (cuestionario === 'cuestionario_02') {
+            this.$set(this.sumatoriasPorCategoria, cuestionario, sumatoriaPorCategoria)
+            this.$set(this.sumatoriasPorDominio, cuestionario, sumatoriaPorDominio)
+          }
+          if (cuestionario === 'cuestionario_03') {
+            this.$set(this.sumatoriasPorCategoria, cuestionario, sumatoriaPorCategoria)
+            this.$set(this.sumatoriasPorDominio, cuestionario, sumatoriaPorDominio)
+          }
         }
       } catch (error) {
         console.error('Error al cargar respuestas:', error)
       }
     },
-
     async eliminarEmpresa (nombre) {
       if (confirm(`¿Seguro que deseas eliminar la empresa "${nombre}"?`)) {
         try {
@@ -535,6 +673,7 @@ export default {
   background-color: #ffffff;
   border-radius: 1rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-top: 1rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   padding: 1.5rem;
 }
@@ -592,39 +731,5 @@ export default {
 .v-button:hover {
   transform: translateY(-2px);
   background-color: #2b6cb0;
-}
-
-/* Estilos de la tabla */
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 1.2rem;
-  text-align: left;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-th {
-  background-color: #5A1B86;
-  color: #ffffff;
-}
-
-tbody tr {
-  background-color: white;
-}
-
-tbody tr:hover {
-  background-color: #f9fafb;
-}
-
-tbody td {
-  color: #000000;
-}
-
-tbody td:first-child {
-  font-weight: 500;
 }
 </style>

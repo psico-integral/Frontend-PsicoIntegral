@@ -46,6 +46,7 @@ export default {
 .card-empleado {
   transition: all 0.3s ease;
   padding: 1.5rem; /* Aumenta el padding para más espacio */
+  margin-top: 1rem;
   border-radius: 1rem; /* Bordes redondeados */
   cursor: pointer;
   background-color: #ffffff; /* Fondo blanco por defecto */
