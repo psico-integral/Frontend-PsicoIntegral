@@ -9,9 +9,7 @@
               Visión
             </h1>
           </v-card-title>
-          <v-card-text>
-            asdfjlñasjfñlsfj
-          </v-card-text>
+          <v-card-text />
         </v-card>
       </v-col>
 
@@ -23,9 +21,7 @@
               Misión
             </h1>
           </v-card-title>
-          <v-card-text>
-            asdjkfhsahfsa
-          </v-card-text>
+          <v-card-text />
         </v-card>
       </v-col>
 
@@ -37,9 +33,7 @@
               Valores
             </h1>
           </v-card-title>
-          <v-card-text>
-            hasdflasñhasdlaskhjfsa
-          </v-card-text>
+          <v-card-text />
         </v-card>
       </v-col>
     </v-row>
