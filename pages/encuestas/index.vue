@@ -497,18 +497,18 @@ export default {
           const categoriasC2 = {
             'Ambiente de trabajo': [1, 2, 3],
             'Factores propios de la actividad': [4, 5, 6, 7, 8, 9, 41, 42, 43],
-            'Organización del tiempo de trabajo': [17, 18],
-            Liderazgo: [31, 32, 33, 34, 37, 38, 39, 40, 41]
+            'Organización del tiempo de trabajo': [14, 15, 16, 17],
+            'Liderazgo y relaciones en el trabajo': [23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 44, 45, 46]
           }
           const dominiosC2 = {
             'Condiciones en el ambiente de trabajo': [1, 2, 3],
             'Carga de trabajo': [4, 5, 6, 7, 8, 9, 41, 42, 43],
             'Falta de control sobre el trabajo': [18, 19, 20, 21, 22, 26, 27],
-            'Organización del tiempo de trabajo': [17, 18],
-            'Interferencia en la relación trabajo-familia': [19, 20, 21],
-            Liderazgo: [31, 32, 33, 34],
-            'Relaciones en el trabajo': [37, 38, 39, 40, 41, 42, 43],
-            'Violencia laboral': [44, 45, 46]
+            'Jornada de trabajo': [14, 15],
+            'Interferencia en la relación trabajo-familia': [16, 17],
+            'Liderazgo': [23, 24, 25, 28, 29],
+            'Relaciones en el trabajo': [30, 31, 32, 44, 45, 46],
+            'Violencia laboral': [33, 34, 35, 36, 37, 38, 39, 40]
           }
           const categoriasC3 = {
             'Ambiente de trabajo': [1, 3],
@@ -646,7 +646,7 @@ export default {
     obtenerTextoRespuesta (valor) {
       const respuestas = {
         0: '---',
-        1: 'RESPUESTA DEL ENCUESTAS(NO COMPONETE)',
+        1: 'Si',
         2: 'No',
         3: 'Nunca',
         4: 'Rara vez',

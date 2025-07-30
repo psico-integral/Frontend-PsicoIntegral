@@ -81,7 +81,7 @@ export function obtenerNivelRiesgo(puntaje, nombre, tipo, cuestionario) {
           { min: 11, max: 14, nivel: 'Alto', color: 'rojo' },
           { min: 14, max: Infinity, nivel: 'Muy alto', color: 'rojo-oscuro' }
         ],
-        'Violencia': [
+        'Violencia laboral': [
           { min: 0, max: 7, nivel: 'Nulo o despreciable', color: 'verde' },
           { min: 7, max: 10, nivel: 'Bajo', color: 'amarillo' },
           { min: 10, max: 13, nivel: 'Medio', color: 'naranja' },
