@@ -3,7 +3,7 @@
     <div class="container mx-auto p-8">
       <!-- Título Principal -->
       <h2 class="text-4xl font-semibold text-gray-800 mb-8">
-        Selecciona una Empresa 🏢
+        Selecciona una Empresa
       </h2>
 
       <!-- Tarjetas de Empresas -->
@@ -26,7 +26,7 @@
           </div>
           <div class="mt-4">
             <p class="text-sm text-gray-600">
-              <span class="font-semibold">🗄️Número de empleados: ({{ Object.keys(empleados).length }})</span>
+              <span class="font-semibold">Número de empleados: ({{ Object.keys(empleados).length }})</span>
             </p>
             <ul class="mt-4 space-y-2">
               <v-btn
@@ -36,6 +36,13 @@
               >
                 <i class="mdi mdi-delete-outline mr-2" /> Eliminar Respuestas De Empleados
               </v-btn>
+              <v-btn
+                color="#4CAF50"
+                class="mt-8"
+                @click="exportarTodoPDF"
+              >
+                Descargar todas las respuestas 🗂️
+              </v-btn>
             </ul>
           </div>
         </div>
@@ -44,7 +51,7 @@
       <!-- Selección de Empleado -->
       <div v-if="empresaSeleccionada && empleadosSeleccionados">
         <h3 class="text-3xl font-semibold mt-12 text-gray-800">
-          Selecciona un Empleado👷‍♀️👷‍♂️
+          Selecciona un Empleado
         </h3>
         <EmpleadosComponent
           :empleados="empresas[empresaSeleccionada]"
@@ -56,7 +63,7 @@
       <!-- Mostrar Respuestas de un Empleado -->
       <div v-if="empleadoSeleccionado && respuestasTabla && Object.keys(respuestasTabla).length">
         <h3 class="text-3xl font-semibold mt-12 text-gray-800">
-          Respuestas de {{ empleadoSeleccionado }} ✏️
+          Respuestas de {{ empleadoSeleccionado }}
         </h3>
         <div class="mt-6 flex justify-start space-x-6">
           <v-btn
@@ -80,17 +87,19 @@
 
           <RespuestasTabla :items="items" />
 
-          <SumatoriasCategorias 
+          <SumatoriasCategorias
             v-if="sumatoriasPorCategoria[cuestionario]"
-            :sumatorias="sumatoriasPorCategoria[cuestionario]" 
+            :sumatorias="sumatoriasPorCategoria[cuestionario]"
             :cuestionario="parseInt(cuestionario.split('_')[1])"
-            class="mb-6" />
+            class="mb-6"
+          />
 
-          <SumatoriasDominios 
-            v-if="sumatoriasPorDominio[cuestionario]" 
+          <SumatoriasDominios
+            v-if="sumatoriasPorDominio[cuestionario]"
             :sumatorias="sumatoriasPorDominio[cuestionario]"
             :cuestionario="parseInt(cuestionario.split('_')[1])"
-            class="mb-6 mt-8" />
+            class="mb-6 mt-8"
+          />
         </div>
       </div>
     </div>
@@ -328,6 +337,92 @@ export default {
     this.cargarEmpresas()
   },
   methods: {
+    exportarTodoPDF () {
+      // eslint-disable-next-line new-cap
+      const doc = new jsPDF()
+      let y = 10
+
+      // Insertar logo
+      const img = new Image()
+      img.src = require('@/assets/logo.png')
+      doc.addImage(img, 'PNG', 10, 10, 30, 30)
+      y = 45
+
+      doc.setFontSize(18)
+      doc.text('Reporte de Respuestas por Empresa', 50, 30)
+
+      for (const [nombreEmpresa, empleados] of Object.entries(this.empresas)) {
+        if (y > 250) {
+          doc.addPage()
+          y = 10
+        }
+
+        doc.setFontSize(16)
+        doc.text(`Empresa: ${nombreEmpresa}`, 10, y)
+        y += 10
+
+        for (const [nombreEmpleado, datosEmpleado] of Object.entries(empleados)) {
+          if (y > 250) {
+            doc.addPage()
+            y = 10
+          }
+
+          doc.setFontSize(14)
+          doc.text(`Empleado: ${nombreEmpleado}`, 15, y)
+          y += 8
+
+          const respuestas = datosEmpleado.respuestas
+
+          if (!respuestas || Object.keys(respuestas).length === 0) {
+            doc.setFontSize(10)
+            doc.text('No hay respuestas.', 20, y)
+            y += 10
+            continue
+          }
+
+          for (const [cuestionario, secciones] of Object.entries(respuestas)) {
+            doc.setFontSize(12)
+            doc.text(`Cuestionario: ${cuestionario}`, 20, y)
+            y += 6
+
+            const rows = []
+
+            for (const [seccion, preguntas] of Object.entries(secciones)) {
+              for (const [numeroPregunta, valorRespuesta] of Object.entries(preguntas)) {
+                const textoPregunta = this.preguntasCuestionarios?.[cuestionario]?.[seccion]?.[numeroPregunta] || `Sección ${seccion} - Pregunta ${numeroPregunta}`
+                const textoRespuesta = this.obtenerTextoRespuesta(valorRespuesta)
+
+                rows.push([
+                  textoPregunta,
+                  textoRespuesta
+                ])
+              }
+            }
+
+            if (rows.length > 0) {
+              autoTable(doc, {
+                head: [['Pregunta', 'Respuesta']],
+                body: rows,
+                startY: y,
+                margin: { horizontal: 15 },
+                styles: { fontSize: 8 },
+                theme: 'striped',
+                headStyles: { fillColor: [0, 102, 204] }
+              })
+
+              y = doc.lastAutoTable.finalY + 10
+            } else {
+              doc.setFontSize(10)
+              doc.text('No hay respuestas en este cuestionario.', 20, y)
+              y += 10
+            }
+          }
+        }
+      }
+
+      doc.save('respuestas_todas_empresas.pdf')
+    },
+
     convertImageToBase64 (src, callback) {
       const img = new Image()
       img.crossOrigin = 'anonymous'
@@ -506,7 +601,7 @@ export default {
             'Falta de control sobre el trabajo': [18, 19, 20, 21, 22, 26, 27],
             'Jornada de trabajo': [14, 15],
             'Interferencia en la relación trabajo-familia': [16, 17],
-            'Liderazgo': [23, 24, 25, 28, 29],
+            Liderazgo: [23, 24, 25, 28, 29],
             'Relaciones en el trabajo': [30, 31, 32, 44, 45, 46],
             'Violencia laboral': [33, 34, 35, 36, 37, 38, 39, 40]
           }
@@ -655,7 +750,19 @@ export default {
         7: 'Siempre'
       }
       return respuestas[valor] !== undefined ? respuestas[valor] : `Respuesta inválida (${valor})`
+    },
+    obtenerRespuestasEmpleado (empresa, empleado) {
+      if (
+        this.empresas &&
+    this.empresas[empresa] &&
+    this.empresas[empresa][empleado] &&
+    this.empresas[empresa][empleado].respuestas
+      ) {
+        return this.empresas[empresa][empleado].respuestas
+      }
+      return null
     }
+
   }
 }
 </script>
