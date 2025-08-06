@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white rounded-xl p-8 shadow-lg">
     <h3 class="mb-4 titulo-con-padding">
-      Puntaje por Categoria 
+      Puntaje por Categoria
     </h3>
 
     <div class="tarjetas-contenedor">
@@ -46,13 +46,14 @@ export default {
     },
     obtenerColor(puntaje, categoria) {
       const resultado = obtenerNivelRiesgo(puntaje, categoria, 'categoria', this.cuestionario)
+      console.log('DEBUG COLOR', { puntaje, categoria, resultado })
       const colores = {
-        'verde': 'bg-green-500',
-        'amarillo': 'bg-yellow-400 text-black',
-        'naranja': 'bg-orange-400',
-        'rojo': 'bg-red-500',
-        'rojo-oscuro': 'bg-red-800',
-        'gris': 'bg-gray-400'
+        'verde': 'color-verde',
+        'amarillo': 'color-amarillo',
+        'naranja': 'color-naranja',
+        'rojo': 'color-rojo',
+        'rojo-oscuro': 'color-rojo-oscuro',
+        'gris': 'color-gris'
       }
       return colores[resultado.color] || 'bg-gray-400'
     }
@@ -111,5 +112,34 @@ export default {
   font-weight: 600;
   font-size: 1.5rem;
   margin-top: 0.5rem;
+}
+.color-verde {
+  background-color: #22c55e; /* verde */
+  color: white;
+}
+
+.color-amarillo {
+  background-color: #eab308; /* amarillo */
+  color: black;
+}
+
+.color-naranja {
+  background-color: #f97316; /* naranja */
+  color: white;
+}
+
+.color-rojo {
+  background-color: #ef4444; /* rojo */
+  color: white;
+}
+
+.color-rojo-oscuro {
+  background-color: #991b1b; /* rojo oscuro */
+  color: white;
+}
+
+.color-gris {
+  background-color: #9ca3af; /* gris */
+  color: black;
 }
 </style>

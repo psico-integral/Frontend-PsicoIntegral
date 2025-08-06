@@ -38,10 +38,10 @@
               </v-btn>
               <v-btn
                 color="#4CAF50"
-                class="mt-8"
+                class="text-red-600 hover:text-red-700 cursor-pointer transition-colors"
                 @click="exportarTodoPDF"
               >
-                Descargar todas las respuestas 🗂️
+                <i class="mdi mdi-download" /> Descargar todas las respuestas
               </v-btn>
             </ul>
           </div>
@@ -601,9 +601,9 @@ export default {
             'Falta de control sobre el trabajo': [18, 19, 20, 21, 22, 26, 27],
             'Jornada de trabajo': [14, 15],
             'Interferencia en la relación trabajo-familia': [16, 17],
-            Liderazgo: [23, 24, 25, 28, 29],
+            'Liderazgo': [23, 24, 25, 28, 29],
             'Relaciones en el trabajo': [30, 31, 32, 44, 45, 46],
-            'Violencia laboral': [33, 34, 35, 36, 37, 38, 39, 40]
+            'Violencia': [33, 34, 35, 36, 37, 38, 39, 40]
           }
           const categoriasC3 = {
             'Ambiente de trabajo': [1, 3],
@@ -617,10 +617,10 @@ export default {
             'Carga de trabajo': [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 65, 66, 67, 68],
             'Falta de control sobre el trabajo': [23, 24, 25, 26, 27, 28, 29, 30, 35, 36],
             'Jornada de trabajo': [17, 18],
-            'Interferencia trabajo-familia': [19, 20, 21, 22],
-            Liderazgo: [31, 32, 33, 34, 37, 38, 39, 40, 41],
+            'Interferencia en la relación trabajo-familia': [19, 20, 21, 22],
+            'Liderazgo': [31, 32, 33, 34, 37, 38, 39, 40, 41],
             'Relaciones en el trabajo': [42, 43, 44, 45, 46, 69, 70, 71],
-            'Violencia laboral': [57, 58, 59, 60, 61, 62, 63, 64],
+            'Violencia': [57, 58, 59, 60, 61, 62, 63, 64],
             'Reconocimiento del desempeño': [47, 48, 49, 50, 51, 52],
             'Insuficiente sentido de pertenencia e, inestabilidad': [53, 54, 55, 56]
           }
