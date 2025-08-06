@@ -41,19 +41,19 @@ export default {
     }
   },
   methods: {
-    obtenerNivelTexto(puntaje, dominio) {
+    obtenerNivelTexto (puntaje, dominio) {
       const resultado = obtenerNivelRiesgo(puntaje, dominio, 'dominio', this.cuestionario)
       return resultado.nivel
     },
-    obtenerColor(puntaje, dominio) {
+    obtenerColor (puntaje, dominio) {
       const resultado = obtenerNivelRiesgo(puntaje, dominio, 'dominio', this.cuestionario)
       const colores = {
-        'verde': 'color-verde',
-        'amarillo': 'color-amarillo',
-        'naranja': 'color-naranja',
-        'rojo': 'color-rojo',
+        verde: 'color-verde',
+        amarillo: 'color-amarillo',
+        naranja: 'color-naranja',
+        rojo: 'color-rojo',
         'rojo-oscuro': 'color-rojo-oscuro',
-        'gris': 'color-gris'
+        gris: 'color-gris'
       }
       return colores[resultado.color] || 'bg-gray-400'
     }
@@ -123,7 +123,7 @@ export default {
 }
 
 .color-naranja {
-  background-color: #f97316; /* naranja */
+  background-color: #1652f9; /* naranja */
   color: white;
 }
 
