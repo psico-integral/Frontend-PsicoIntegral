@@ -509,7 +509,7 @@ export default {
       this.empleadosSeleccionados = !!this.empresaSeleccionada
     },
     obtenerValorPonderado (cuestionario, numeroPregunta, valorCrudo) {
-      if (valorCrudo === 0) { return '---' } // No contestó
+      if (valorCrudo === 0) { return '---' }
 
       const tipoBC2 = [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
       const tipoAC2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]
@@ -601,9 +601,9 @@ export default {
             'Falta de control sobre el trabajo': [18, 19, 20, 21, 22, 26, 27],
             'Jornada de trabajo': [14, 15],
             'Interferencia en la relación trabajo-familia': [16, 17],
-            'Liderazgo': [23, 24, 25, 28, 29],
+            Liderazgo: [23, 24, 25, 28, 29],
             'Relaciones en el trabajo': [30, 31, 32, 44, 45, 46],
-            'Violencia': [33, 34, 35, 36, 37, 38, 39, 40]
+            Violencia: [33, 34, 35, 36, 37, 38, 39, 40]
           }
           const categoriasC3 = {
             'Ambiente de trabajo': [1, 3],
@@ -618,9 +618,9 @@ export default {
             'Falta de control sobre el trabajo': [23, 24, 25, 26, 27, 28, 29, 30, 35, 36],
             'Jornada de trabajo': [17, 18],
             'Interferencia en la relación trabajo-familia': [19, 20, 21, 22],
-            'Liderazgo': [31, 32, 33, 34, 37, 38, 39, 40, 41],
+            Liderazgo: [31, 32, 33, 34, 37, 38, 39, 40, 41],
             'Relaciones en el trabajo': [42, 43, 44, 45, 46, 69, 70, 71],
-            'Violencia': [57, 58, 59, 60, 61, 62, 63, 64],
+            Violencia: [57, 58, 59, 60, 61, 62, 63, 64],
             'Reconocimiento del desempeño': [47, 48, 49, 50, 51, 52],
             'Insuficiente sentido de pertenencia e, inestabilidad': [53, 54, 55, 56]
           }
@@ -762,7 +762,6 @@ export default {
       }
       return null
     }
-
   }
 }
 </script>
@@ -813,13 +812,13 @@ export default {
 
 .empresa-card li {
   font-size: 1.1rem;
-  color: #e53e3e;
+  color: #413ee5;
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .empresa-card li:hover {
-  color: #c53030;
+  color: #304bc5;
 }
 
 .empresa-card li i {

@@ -40,20 +40,20 @@ export default {
     }
   },
   methods: {
-    obtenerNivelTexto(puntaje, categoria) {
+    obtenerNivelTexto (puntaje, categoria) {
       const resultado = obtenerNivelRiesgo(puntaje, categoria, 'categoria', this.cuestionario)
       return resultado.nivel
     },
-    obtenerColor(puntaje, categoria) {
+    obtenerColor (puntaje, categoria) {
       const resultado = obtenerNivelRiesgo(puntaje, categoria, 'categoria', this.cuestionario)
       console.log('DEBUG COLOR', { puntaje, categoria, resultado })
       const colores = {
-        'verde': 'color-verde',
-        'amarillo': 'color-amarillo',
-        'naranja': 'color-naranja',
-        'rojo': 'color-rojo',
+        verde: 'color-verde',
+        amarillo: 'color-amarillo',
+        naranja: 'color-naranja',
+        rojo: 'color-rojo',
         'rojo-oscuro': 'color-rojo-oscuro',
-        'gris': 'color-gris'
+        gris: 'color-gris'
       }
       return colores[resultado.color] || 'bg-gray-400'
     }
@@ -98,7 +98,6 @@ export default {
   scroll-snap-align: start;
 }
 
-
 .puntaje-tarjeta:hover {
   box-shadow: 0 4px 16px rgba(107, 70, 193, 0.8);
 }
@@ -124,7 +123,7 @@ export default {
 }
 
 .color-naranja {
-  background-color: #f97316; /* naranja */
+  background-color: #1652f9; /* naranja */
   color: white;
 }
 
