@@ -17,7 +17,7 @@
         <p class="puntaje-valor">
           {{ puntaje }}
         </p>
-        <p>
+        <p class="puntaje-nivel">
           Nivel: {{ obtenerNivelTexto(puntaje, dominio) }}
         </p>
       </div>
@@ -71,31 +71,18 @@ export default {
 .tarjetas-contenedor {
   display: flex;
   flex-direction: row;
-  overflow-x: auto;
-  gap: 1rem;
-  padding-bottom: 1rem;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-.tarjetas-contenedor::-webkit-scrollbar {
-  display: none;
-}
-
-.tarjetas-contenedor {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  flex-wrap: wrap;         
+  gap: 1rem;               
+  padding-bottom: 1rem; 
 }
 
 .puntaje-tarjeta {
-  min-width: 200px;
+  min-width: 100px;
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 0.5rem;
   box-shadow: 0 2px 8px rgba(114, 82, 188, 0.5);
   transition: box-shadow 0.3s ease;
   flex-shrink: 0;
-  scroll-snap-align: start;
 }
 
 .puntaje-tarjeta:hover {
@@ -104,7 +91,8 @@ export default {
 
 .puntaje-titulo {
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1rem;
+  margin-top: 0.5rem;
 }
 
 .puntaje-valor {
@@ -112,6 +100,13 @@ export default {
   font-size: 1.5rem;
   margin-top: 0.5rem;
 }
+
+.puntaje-nivel {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
 .color-verde {
   background-color: #22c55e; /* verde */
   color: white;
