@@ -518,6 +518,9 @@ export default {
       const tipoAC3 = [2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 29, 54, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
 
       const mapaDirecto = {
+        0: 0,
+        1: 0,
+        2: 0,
         3: 0,
         4: 1,
         5: 2,
@@ -530,10 +533,13 @@ export default {
         6: 1,
         5: 2,
         4: 3,
-        3: 4
+        3: 4,
+        2: 0,
+        1: 0,
+        0: 0
       }
 
-      if (cuestionario === 'cuestionario_01') {
+      if (cuestionario === 'cuestionario_01' && 'cuestionario_02' && 'cuestionario_03') {
         const mapa = {
           1: 0,
           2: 0
