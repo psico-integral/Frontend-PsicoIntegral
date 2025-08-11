@@ -6,7 +6,6 @@
         Selecciona una Empresa
       </h2>
 
-      <!-- Tarjetas de Empresas -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <div
           v-for="(empleados, nombre) in empresas"
@@ -342,7 +341,14 @@ export default {
       const doc = new jsPDF()
       let y = 10
 
-      // Insertar logo
+      const empresa = this.empresaSeleccionada
+      if (!empresa || !this.empresas[empresa]) {
+        alert('No se encontraron datos para la empresa seleccionada.')
+        return
+      }
+
+      const empleados = this.empresas[empresa]
+
       const img = new Image()
       img.src = require('@/assets/logo.png')
       doc.addImage(img, 'PNG', 10, 10, 30, 30)
@@ -351,76 +357,240 @@ export default {
       doc.setFontSize(18)
       doc.text('Reporte de Respuestas por Empresa', 50, 30)
 
-      for (const [nombreEmpresa, empleados] of Object.entries(this.empresas)) {
+      const categoriasC2 = {
+        'Ambiente de trabajo': [1, 2, 3],
+        'Factores propios de la actividad': [4, 5, 6, 7, 8, 9, 41, 42, 43],
+        'Organización del tiempo de trabajo': [14, 15, 16, 17],
+        'Liderazgo y relaciones en el trabajo': [23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 44, 45, 46]
+      }
+      const dominiosC2 = {
+        'Condiciones en el ambiente de trabajo': [1, 2, 3],
+        'Carga de trabajo': [4, 5, 6, 7, 8, 9, 41, 42, 43],
+        'Falta de control sobre el trabajo': [18, 19, 20, 21, 22, 26, 27],
+        'Jornada de trabajo': [14, 15],
+        'Interferencia en la relación trabajo-familia': [16, 17],
+        Liderazgo: [23, 24, 25, 28, 29],
+        'Relaciones en el trabajo': [30, 31, 32, 44, 45, 46],
+        Violencia: [33, 34, 35, 36, 37, 38, 39, 40]
+      }
+      const categoriasC3 = {
+        'Ambiente de trabajo': [1, 3],
+        'Factores propios de la actividad': [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 29, 30, 35, 36, 65, 66, 67, 68],
+        'Organización del tiempo de trabajo': [17, 18, 19, 20, 21, 22],
+        'Liderazgo y relaciones en el trabajo': [31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 57, 58, 59, 60, 61, 62, 63, 64, 69, 70, 71, 72],
+        'Entorno organizacional': [47, 48, 49, 50, 51, 52, 53, 54, 55, 56]
+      }
+      const dominiosC3 = {
+        'Condiciones en el ambiente de trabajo': [1, 3],
+        'Carga de trabajo': [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 65, 66, 67, 68],
+        'Falta de control sobre el trabajo': [23, 24, 25, 26, 27, 28, 29, 30, 35, 36],
+        'Jornada de trabajo': [17, 18],
+        'Interferencia en la relación trabajo-familia': [19, 20, 21, 22],
+        Liderazgo: [31, 32, 33, 34, 37, 38, 39, 40, 41],
+        'Relaciones en el trabajo': [42, 43, 44, 45, 46, 69, 70, 71],
+        Violencia: [57, 58, 59, 60, 61, 62, 63, 64],
+        'Reconocimiento del desempeño': [47, 48, 49, 50, 51, 52],
+        'Insuficiente sentido de pertenencia e, inestabilidad': [53, 54, 55, 56]
+      }
+
+      const obtenerValorPonderado = (cuestionario, numeroPregunta, valorRespuesta) => {
+        if (valorRespuesta === 0) { return '---' }
+
+        const tipoBC2 = [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+        const tipoAC2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]
+
+        const tipoBC3 = [1, 4, 23, 24, 25, 26, 27, 28, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 55, 56, 57]
+        const tipoAC3 = [2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 29, 54, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
+
+        const mapaDirecto = {
+          0: 0,
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 1,
+          5: 2,
+          6: 3,
+          7: 4
+        }
+
+        const mapaInvertido = {
+          7: 0,
+          6: 1,
+          5: 2,
+          4: 3,
+          3: 4,
+          2: 0,
+          1: 0,
+          0: 0
+        }
+
+        if (cuestionario === 'cuestionario_01' && 'cuestionario_02' && 'cuestionario_03') {
+          const mapa = {
+            1: 0,
+            2: 0
+          }
+          return mapa[valorRespuesta] ?? '---'
+        }
+
+        if (cuestionario === 'cuestionario_02') {
+          if (tipoBC2.includes(numeroPregunta)) { return mapaInvertido[valorRespuesta] ?? '---' }
+          if (tipoAC2.includes(numeroPregunta)) { return mapaDirecto[valorRespuesta] ?? '---' }
+        }
+
+        if (cuestionario === 'cuestionario_03') {
+          if (tipoBC3.includes(numeroPregunta)) { return mapaInvertido[valorRespuesta] ?? '---' }
+          if (tipoAC3.includes(numeroPregunta)) { return mapaDirecto[valorRespuesta] ?? '---' }
+        }
+
+        return valorRespuesta
+      }
+
+      const obtenerTextoRespuesta = (valor) => {
+        const respuestas = {
+          0: '---',
+          1: 'Si',
+          2: 'No',
+          3: 'Nunca',
+          4: 'Rara vez',
+          5: 'Algunas veces',
+          6: 'Frecuentemente',
+          7: 'Siempre'
+        }
+        return respuestas[valor] !== undefined ? respuestas[valor] : `Respuesta inválida (${valor})`
+      }
+
+      if (y > 250) {
+        doc.addPage()
+        y = 19
+      }
+
+      doc.setFontSize(16)
+      doc.text(`Empresa: ${empresa}`, 10, y)
+      y += 10
+
+      for (const [nombreEmpleado, datosEmpleado] of Object.entries(empleados)) {
         if (y > 250) {
           doc.addPage()
           y = 10
         }
 
-        doc.setFontSize(16)
-        doc.text(`Empresa: ${nombreEmpresa}`, 10, y)
-        y += 10
+        doc.setFontSize(14)
+        doc.text(`Empleado: ${nombreEmpleado}`, 15, y)
+        y += 8
 
-        for (const [nombreEmpleado, datosEmpleado] of Object.entries(empleados)) {
-          if (y > 250) {
-            doc.addPage()
-            y = 10
+        const respuestas = datosEmpleado.respuestas
+        if (!respuestas || Object.keys(respuestas).length === 0) {
+          doc.setFontSize(10)
+          doc.text('No hay respuestas.', 20, y)
+          y += 10
+          continue
+        }
+
+        for (const [cuestionario, secciones] of Object.entries(respuestas)) {
+          doc.setFontSize(12)
+          doc.text(`Cuestionario: ${cuestionario}`, 20, y)
+          y += 6
+
+          const rows = []
+
+          // Variables para sumatorias
+          let sumaPonderada = 0
+          const sumatoriaPorCategoria = {}
+          const sumatoriaPorDominio = {}
+
+          // Inicializa sumatorias para cuestionarios 2 y 3
+          if (cuestionario === 'cuestionario_02') {
+            for (const cat in categoriasC2) { sumatoriaPorCategoria[cat] = 0 }
+            for (const dom in dominiosC2) { sumatoriaPorDominio[dom] = 0 }
+          }
+          if (cuestionario === 'cuestionario_03') {
+            for (const cat in categoriasC3) { sumatoriaPorCategoria[cat] = 0 }
+            for (const dom in dominiosC3) { sumatoriaPorDominio[dom] = 0 }
           }
 
-          doc.setFontSize(14)
-          doc.text(`Empleado: ${nombreEmpleado}`, 15, y)
-          y += 8
+          for (const [seccion, preguntas] of Object.entries(secciones)) {
+            // Ordena las preguntas
+            const idsOrdenados = Object.keys(preguntas).sort((a, b) => parseInt(a) - parseInt(b))
 
-          const respuestas = datosEmpleado.respuestas
+            for (const idPregunta of idsOrdenados) {
+              const valor = preguntas[idPregunta]
+              const textoPregunta = this.preguntasCuestionarios?.[cuestionario]?.[seccion]?.[idPregunta] ||
+              `Sección ${seccion} - Pregunta ${idPregunta}`
 
-          if (!respuestas || Object.keys(respuestas).length === 0) {
-            doc.setFontSize(10)
-            doc.text('No hay respuestas.', 20, y)
-            y += 10
-            continue
-          }
+              const numeroPregunta = parseInt(idPregunta, 10)
+              const valorPonderado = obtenerValorPonderado(cuestionario, numeroPregunta, valor)
+              const textoRespuesta = obtenerTextoRespuesta(valor)
 
-          for (const [cuestionario, secciones] of Object.entries(respuestas)) {
-            doc.setFontSize(12)
-            doc.text(`Cuestionario: ${cuestionario}`, 20, y)
-            y += 6
+              if (typeof valorPonderado === 'number') {
+                sumaPonderada += valorPonderado
 
-            const rows = []
-
-            for (const [seccion, preguntas] of Object.entries(secciones)) {
-              for (const [numeroPregunta, valorRespuesta] of Object.entries(preguntas)) {
-                const textoPregunta = this.preguntasCuestionarios?.[cuestionario]?.[seccion]?.[numeroPregunta] || `Sección ${seccion} - Pregunta ${numeroPregunta}`
-                const textoRespuesta = this.obtenerTextoRespuesta(valorRespuesta)
-
-                rows.push([
-                  textoPregunta,
-                  textoRespuesta
-                ])
+                if (cuestionario === 'cuestionario_02') {
+                  for (const [cat, preguntasCat] of Object.entries(categoriasC2)) {
+                    if (preguntasCat.includes(numeroPregunta)) { sumatoriaPorCategoria[cat] += valorPonderado }
+                  }
+                  for (const [dom, preguntasDom] of Object.entries(dominiosC2)) {
+                    if (preguntasDom.includes(numeroPregunta)) { sumatoriaPorDominio[dom] += valorPonderado }
+                  }
+                }
+                if (cuestionario === 'cuestionario_03') {
+                  for (const [cat, preguntasCat] of Object.entries(categoriasC3)) {
+                    if (preguntasCat.includes(numeroPregunta)) { sumatoriaPorCategoria[cat] += valorPonderado }
+                  }
+                  for (const [dom, preguntasDom] of Object.entries(dominiosC3)) {
+                    if (preguntasDom.includes(numeroPregunta)) { sumatoriaPorDominio[dom] += valorPonderado }
+                  }
+                }
               }
-            }
 
-            if (rows.length > 0) {
-              autoTable(doc, {
-                head: [['Pregunta', 'Respuesta']],
-                body: rows,
-                startY: y,
-                margin: { horizontal: 15 },
-                styles: { fontSize: 8 },
-                theme: 'striped',
-                headStyles: { fillColor: [0, 102, 204] }
-              })
-
-              y = doc.lastAutoTable.finalY + 10
-            } else {
-              doc.setFontSize(10)
-              doc.text('No hay respuestas en este cuestionario.', 20, y)
-              y += 10
+              rows.push([idPregunta, textoPregunta, textoRespuesta])
             }
           }
+
+          if (rows.length > 0) {
+            autoTable(doc, {
+              head: [['No.', 'Pregunta', 'Respuesta']],
+              body: rows,
+              startY: y,
+              margin: { horizontal: 15 },
+              styles: { fontSize: 8 },
+              theme: 'striped',
+              headStyles: { fillColor: [0, 102, 204] }
+            })
+            y = doc.lastAutoTable.finalY + 10
+          } else {
+            doc.setFontSize(10)
+            doc.text('No hay respuestas en este cuestionario.', 20, y)
+            y += 10
+          }
+
+          doc.setFontSize(10)
+          doc.text(`Sumatoria total del cuestionario: ${sumaPonderada}`, 20, y)
+          y += 6
+
+          if (Object.keys(sumatoriaPorCategoria).length > 0) {
+            doc.text('Sumatorias por categoría:', 20, y)
+            y += 5
+            for (const [cat, val] of Object.entries(sumatoriaPorCategoria)) {
+              doc.text(`• ${cat}: ${val}`, 25, y)
+              y += 5
+            }
+          }
+
+          if (Object.keys(sumatoriaPorDominio).length > 0) {
+            doc.text('Sumatorias por dominio:', 20, y)
+            y += 5
+            for (const [dom, val] of Object.entries(sumatoriaPorDominio)) {
+              doc.text(`• ${dom}: ${val}`, 25, y)
+              y += 5
+            }
+          }
+
+          y += 8
         }
       }
 
-      doc.save('respuestas_todas_empresas.pdf')
+      const nombreLimpio = empresa.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_')
+      doc.save(`respuestas_empleados_${nombreLimpio}.pdf`)
     },
 
     convertImageToBase64 (src, callback) {
@@ -715,6 +885,16 @@ export default {
             this.$set(this.sumatoriasPorDominio, cuestionario, sumatoriaPorDominio)
           }
         }
+        if (!this.empresas[this.empresaSeleccionada]) {
+          this.$set(this.empresas, this.empresaSeleccionada, {})
+        }
+
+        this.$set(this.empresas[this.empresaSeleccionada], nombreEmpleado, {
+          respuestas,
+          sumatoriasPorCuestionario: this.sumatoriasPorCuestionario,
+          sumatoriasPorCategoria: this.sumatoriasPorCategoria,
+          sumatoriasPorDominio: this.sumatoriasPorDominio
+        })
       } catch (error) {
         console.error('Error al cargar respuestas:', error)
       }
