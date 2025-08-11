@@ -10,10 +10,8 @@
           <v-card-text style="max-height: 400px; overflow-y: auto;">
             <v-simple-table dense class="tabla-transparente">
               <thead>
-                <tr>
-                  <th>Nivel de riesgo</th>
+                  <th class="text-left text-white font-weight-bold">Nivel de riesgo</th>
                   <th class="text-left text-white font-weight-bold">Necesidad de acción</th>
-                </tr>
               </thead>
               <tbody>
                 <tr>
@@ -80,10 +78,8 @@
           <v-card-text style="max-height: 400px; overflow-y: auto;">
             <v-simple-table dense class="tabla-transparente">
               <thead>
-                <tr>
                   <th class="text-left text-white font-weight-bold">Nivel de riesgo</th>
                   <th class="text-left text-white font-weight-bold">Necesidad de acción</th>
-                </tr>
               </thead>
               <tbody>
                 <tr>
@@ -164,28 +160,21 @@ export default {
 </script>
 
 <style scoped>
-/* Personalizar la tarjeta */
 .custom-card {
   background-color: #4040407e;
   border-radius: 16px;
-  /* Bordes redondeados */
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
-  /* Sombra */
   color: white;
-  /* Color de texto blanco */
   padding: 16px;
-  /* Espaciado dentro de la tarjeta */
 }
 
 .title-card {
   color: white;
   font-size: 2rem;
-  /* Tamaño de fuente más grande para el título */
   font-weight: bold;
   text-align: center;
 }
 
-/* Espaciado entre tarjetas */
 .v-row {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -195,13 +184,13 @@ export default {
   background-color: transparent !important;
   color: white;
 }
+
 .tabla-transparente th {
   background-color: transparent !important;
   border-bottom: none;
   color: white !important;
-  font-size: 2rem; /* Aumenta el tamaño de fuente */
-  font-weight: 700; /* Refuerza el grosor */
+  font-size: 1rem;
+  font-weight: 700; 
   padding: 12px 8px;
 }
-
 </style>

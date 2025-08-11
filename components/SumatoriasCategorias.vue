@@ -48,11 +48,11 @@ export default {
       const resultado = obtenerNivelRiesgo(puntaje, categoria, 'categoria', this.cuestionario)
       console.log('DEBUG COLOR', { puntaje, categoria, resultado })
       const colores = {
+        azul: 'color-azul',
         verde: 'color-verde',
         amarillo: 'color-amarillo',
         naranja: 'color-naranja',
         rojo: 'color-rojo',
-        'rojo-oscuro': 'color-rojo-oscuro',
         gris: 'color-gris'
       }
       return colores[resultado.color] || 'bg-gray-400'
@@ -93,47 +93,53 @@ export default {
   font-weight: 700;
   font-size: 1rem;
   margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .puntaje-valor {
   font-weight: 600;
   font-size: 1.5rem;
   margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .puntaje-nivel {
   font-weight: 700;
   font-size: 1rem;
   margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.color-azul {
+  background-color: #07BDEB; 
+  color: white;
 }
 
 .color-verde {
-  background-color: #22c55e; /* verde */
+  background-color: #28A832; 
   color: white;
 }
 
 .color-amarillo {
-  background-color: #eab308; /* amarillo */
-  color: black;
+  background-color: #F5DC11; 
+  color: white;
 }
 
-.color-naranja {
-  background-color: #1652f9; /* naranja */
+.color-naranja{
+  background-color: #F28F05; 
   color: white;
 }
 
 .color-rojo {
-  background-color: #ef4444; /* rojo */
-  color: white;
-}
-
-.color-rojo-oscuro {
-  background-color: #991b1b; /* rojo oscuro */
+  background-color: #C90E0E; 
   color: white;
 }
 
 .color-gris {
-  background-color: #9ca3af; /* gris */
-  color: black;
+  background-color: #9ca3af; 
+  color: white;
 }
 </style>

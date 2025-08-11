@@ -78,10 +78,10 @@
           :key="cuestionario"
           class="mt-8"
         >
-          <h4 class="text-2xl font-semibold text-gray-900 mb-4">
+          <h4 class="text-3xl font-semibold text-gray-900 mb-4">
             {{ cuestionario.replace('_', ' ').toUpperCase() }}
           </h4>
-          <h4 class="text-xl font-semibold text-gray-900 mb-4">
+          <h4 class="text-2xl font-semibold text-gray-900 mb-4">
             Puntaje total: {{ sumatoriasPorCuestionario[cuestionario] }}
           </h4>
 
@@ -536,7 +536,7 @@ export default {
         3: 4,
         2: 0,
         1: 0,
-        0: 0
+        0: 0,
       }
 
       if (cuestionario === 'cuestionario_01' && 'cuestionario_02' && 'cuestionario_03') {
