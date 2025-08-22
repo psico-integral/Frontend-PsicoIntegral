@@ -51,7 +51,8 @@ export default {
   ],
   axios: {
     // Pruebas locales
-    baseURL: 'http://localhost:5000/api/'
+    // baseURL: 'http://localhost:5000/api/'
+    baseURL: 'https://back-psicointegal.onrender.com'
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
